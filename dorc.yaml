@@ -1,0 +1,15 @@
+defaultMode: dev
+locals: ./config.yaml
+
+services:
+
+  proxy:
+    net: host
+    image: pmkr/nginx:1.10.1_1.1.0
+    volumes:
+      - ./proxy/nginx:/nginx
+      - ./proxy/ssl:/root/ssl
+    mode:
+      dev:
+        env:
+          WATCH: "/nginx/**/*.conf -- /nginx/*.{json,yaml,js}"

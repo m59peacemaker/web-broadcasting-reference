@@ -1,0 +1,2 @@
+NGINX_USER: nginx
+sslServers: 2
