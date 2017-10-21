@@ -199,8 +199,13 @@ export default {
         const volumeAnalyser = TrackVolumeAnalyser(audioContext, gainTrack.track)
         const updateVolume = () => this.setDeep(`${keypath}.volume`, volumeAnalyser.getVolume())
         const rafLoop = RafLoop(updateVolume)
+        const track = gainTrack.track
 
-        this.setDeepObject(keypath, { track: gainTrack.track, sourceTrack, rafLoop })
+        if (settings.muted) {
+          track.enabled = false
+        }
+
+        this.setDeepObject(keypath, { track, sourceTrack, rafLoop })
       }
 
       this.observeDeep(`${keypath}.deviceId`, updateAudioSource)
