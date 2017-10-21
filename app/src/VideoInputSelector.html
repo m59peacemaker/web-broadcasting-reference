@@ -1,0 +1,40 @@
+<button
+  class="video-input-selector"
+  disabled="{{ inputs.length < 2 }}"
+  on:click="selectNextInput()"
+>
+  <slot></slot>
+</button>
+
+<script>
+import mediaDeviceService from './lib/media-device-service'
+
+export default {
+  data () {
+    return {
+      inputs: [],
+      selected: undefined
+    }
+  },
+
+  computed: {
+    selected: (inputs, selected) => inputs.length
+      ? mediaDeviceService.deviceIsConnected(selected) ? selected : (inputs.default || inputs[0])
+      : undefined
+  },
+
+  oncreate () {
+    mediaDeviceService.on('videoinputs', inputs => this.set({ inputs }))
+  },
+
+  methods: {
+    selectNextInput () {
+      const inputs = this.get('inputs')
+      const selected = this.get('selected')
+      const currentIndex = inputs.findIndex(input => input.deviceId === selected.deviceId)
+      const nextIndex = (currentIndex + 1) % inputs.length
+      this.set({ selected: inputs[nextIndex] })
+    }
+  }
+}
+</script>

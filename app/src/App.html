@@ -1,0 +1,278 @@
+<div class="broadcast">
+  <AudioInputs
+    devices="{{ devices.inputs.audio }}"
+    :deviceSettings
+    activeInputs="{{ activeDevices.inputs.audio }}"
+    on:addAudioInputRequest="addAudioInput()"
+    on:toggleMuteRequest="toggleMute(event.input.deviceId)"
+  />
+  <!--
+  <div class="overlays">
+    <Overlay>
+      <VideoInputSelector bind:selected="selectedVideoInput">
+        {{ (selectedVideoInput || {}).deviceId || 'No video inputs available' }}
+      </VideoInputSelector>
+  </div>
+  -->
+  <StreamingMedia
+    ref:localMedia
+    :videoTrack
+    mirror="{{ frontFacing }}"
+    :audioTrack
+    muted="{{ !monitorMic }}"
+  />
+</div>
+
+<script>
+import 'webrtc-adapter'
+import mediaDeviceService, { MediaDevicesTemplate } from './lib/media-device-service'
+import AudioInputs from './AudioInputs.html'
+import Overlay from './Overlay.html'
+import AudioInputSelector from './AudioInputSelector.html'
+import VideoInputSelector from './VideoInputSelector.html'
+import StreamingMedia from './Video.html'
+import VolumeMeter from './VolumeMeter.html'
+import VolumeAnalyser from './lib/volume-analyser'
+import RafLoop from './lib/raf-loop'
+import { getDeep, setDeep, observeDeep, push } from 'svelte-extras'
+import mergeDeep from 'deepmerge'
+import omitDeep from './lib/omit-deep'
+import deviceSettings, { audioProcessingModeConfigs } from './lib/device-settings'
+
+// TODO: muteAll button, part of master audio controls to the right of audio inputs (where the + is)
+
+const setDeepObject = function (keypath, object) {
+  return setDeep.call(this, keypath, Object.assign(this.getDeep(keypath), object))
+}
+const capitalize = string => string.charAt(0).toUpperCase() + string.slice(1)
+const getUserMedia = options => window.navigator.mediaDevices.getUserMedia(options)
+const replaceTracks = (toStream, fromStream) => {
+  ;[ 'Audio', 'Video' ].forEach(type => {
+    const getTracks = stream => stream[`get${ type }Tracks`]()
+    const newTracks = getTracks(fromStream)
+    if (newTracks.length) {
+      getTracks(toStream).forEach(track => {
+        track.stop()
+        toStream.removeTrack(track)
+      })
+      newTracks.forEach(track => toStream.addTrack(track))
+    }
+  })
+}
+const GainTrack = (context, track) => {
+  const gainNode = context.createGain()
+  const src = context.createMediaStreamSource(new MediaStream([ track ]))
+  const dest = context.createMediaStreamDestination()
+  src.connect(gainNode)
+  gainNode.connect(dest)
+  const newTrack = dest.stream.getAudioTracks()[0]
+  track.addEventListener('ended', () => {
+    newTrack.stop()
+    // I don't this matters, but just in case. I think gc takes care of it.
+    src.disconnect(gainNode)
+    gainNode.disconnect(dest)
+  })
+  return { track: newTrack, gain: gainNode.gain }
+}
+const TrackVolumeAnalyser = (context, track) => {
+  const { node, getVolume } = VolumeAnalyser(context)
+  const src = context.createMediaStreamSource(new MediaStream([ track ]))
+  src.connect(node)
+  track.addEventListener('ended', () => src.disconnect(node))
+  return { getVolume }
+}
+const audioContext = new AudioContext()
+
+const InitialDeviceState = {
+  audio: (deviceId) => ({
+    deviceId,
+    volume: 0,
+    monitoring: true
+  })
+}
+
+const getAudioInputConstraints = (deviceId, { stereo, processing }) => Object.assign(
+  {
+    deviceId,
+    channelCount: stereo ? 2 : 1
+  },
+  processing.mode === 'custom'
+    ? processing.custom
+    : audioProcessingModeConfigs[processing.mode]
+)
+
+export default {
+  components: { AudioInputs, Overlay, AddAudioInput, AudioInputSmall, AudioInputSelector, VideoInputSelector, VolumeMeter, StreamingMedia },
+
+  data () {
+    return {
+      preferredVideoFacing: 'back',
+      devices: MediaDevicesTemplate(),
+      activeDevices: MediaDevicesTemplate(),
+      deviceSettings: {}
+    }
+  },
+
+  oncreate () {
+    mediaDeviceService.on('devices', devices => {
+      this.set({
+        devices,
+        deviceSettings: deviceSettings.getAll()
+      })
+      this.addAudioInput()
+    })
+
+    this.observeDeep('deviceSettings', deviceSettings.set, { init: false })
+
+    /* this.observe('selectedVideoInput', async input => { */
+    /*   if (!input) { return } */
+
+    /*   this.set({ activeAudioInputs: [ 1 ] }) */
+    /*   const oldTrack = this.get('videoTrack') */
+    /*   oldTrack && oldTrack.stop() */
+    /*   console.log(this.get('mediaInputs')) */
+
+    /*   try { */
+    /*     const stream = await getUserMedia({ */
+    /*       video: { */
+    /*         width: { ideal: 1920 }, */
+    /*         height: { ideal: 1080 }, */
+    /*         frameRate: { ideal: 30 }, */
+    /*         deviceId: input.deviceId */
+    /*       } */
+    /*     }) */
+    /*     const track = stream.getVideoTracks()[0] */
+    /*     this.set({ videoTrack: track, frontFacing: input.facing !== 'back' }) */
+    /*   } catch (err) { */
+    /*     // TODO: handle this error */
+    /*     // this.set({ videoDeviceError: err }) */
+    /*     console.log(err) */
+    /*   } */
+    /* }) */
+  },
+
+  methods: {
+    push,
+    getDeep,
+    setDeep,
+    setDeepObject,
+    observeDeep,
+    toggleMute (deviceId) {
+      const { track } = this.getDeep('activeDevices.inputs.audio')
+        .find(input => input.deviceId === deviceId)
+      track.enabled = !track.enabled
+      this.setDeep(`deviceSettings.${deviceId}.muted`, !track.enabled)
+    },
+    getFirstInactiveInput (type) {
+      const devices = this.getDeep(`devices.inputs.${type}`)
+      const activeInputs = this.getDeep('activeDevices.inputs.audio')
+
+      const activeDeviceIds = activeInputs.map(input => input.deviceId)
+      return devices.find(device => !activeDeviceIds.includes(device.deviceId))
+    },
+    addAudioInput () {
+      const device = this.getFirstInactiveInput('audio')
+
+      if (!device) {
+        throw new Error('there are no unused audio input devices available')
+      }
+
+      const index = this.getDeep('activeDevices.inputs.audio').length
+      const keypath = `activeDevices.inputs.audio[${index}]`
+      this.push('activeDevices.inputs.audio', InitialDeviceState.audio(device.deviceId))
+
+      const updateAudioSource = async () => {
+        const state = this.getDeep(keypath)
+
+        if (state.sourceTrack) {
+          state.sourceTrack.stop()
+          state.rafLoop.cancel()
+        }
+
+        const settings = this.getDeep(`deviceSettings.${state.deviceId}`)
+        const audioConstraints = getAudioInputConstraints(state.deviceId, settings)
+
+        const stream = await getUserMedia({ audio: audioConstraints })
+        const sourceTrack = stream.getAudioTracks()[0]
+
+        const gainTrack = GainTrack(audioContext, sourceTrack)
+        const volumeAnalyser = TrackVolumeAnalyser(audioContext, gainTrack.track)
+        const updateVolume = () => this.setDeep(`${keypath}.volume`, volumeAnalyser.getVolume())
+        const rafLoop = RafLoop(updateVolume)
+
+        this.setDeepObject(keypath, { track: gainTrack.track, sourceTrack, rafLoop })
+      }
+
+      this.observeDeep(`${keypath}.deviceId`, updateAudioSource)
+    }
+  }
+}
+</script>
+
+<style>
+.broadcast {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgb(10, 10, 10);
+}
+
+video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+select {
+  padding: 8px;
+  font-size: 16px;
+  max-width: 100%;
+}
+
+button {
+  color: white;
+  background: none;
+  border: none;
+  padding: 0;
+  display: block;
+  opacity: 0.7;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:hover {
+  opacity: 1;
+}
+
+.volume-meter {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.active-audio-inputs {
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+}
+
+.add-audio-input {
+  background: rgba(85, 85, 85, 0.5);
+  position: absolute;
+  left: 100%;
+  top: 0;
+}
+
+.audio-input-small {
+  display: inline-block;
+  padding: 5px;
+  background: rgba(85, 85, 85, .5);
+}
+
+</style>

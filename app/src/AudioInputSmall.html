@@ -1,0 +1,58 @@
+<div class="audio-input-small">
+  <button
+    class="settings"
+    data-muted="{{ muted }}"
+    style="{{ iconStyle }}"
+  ><Svg svg="{{ icons.settings }}" /></button>
+  <VolumeMeter :volume />
+  <button
+    class="mute"
+    data-muted="{{ muted }}"
+    style="{{ iconStyle }}"
+    on:click="fire(FIRES.toggleMuteRequest)"
+  ><Svg svg="{{ icons.micOff }}" /></button>
+</div>
+
+<script>
+import Svg from './lib/Svg.html'
+import { micOff, settings } from '../../../mdi-svg'
+import VolumeMeter from './VolumeMeter.html'
+
+const FIRES = {
+  'toggleMuteRequest': 'toggleMuteRequest',
+  'toggleSettings': 'toggleSettings'
+}
+;[ FIRES ].forEach(v => Object.freeze(v))
+
+export default {
+  components: { Svg, VolumeMeter },
+
+  setup (Component) {
+    Object.assign(Component, { FIRES })
+  },
+
+  data () {
+    return {
+      icons: { micOff, settings },
+      muted: false,
+      volume: 0,
+      FIRES
+    }
+  }
+}
+</script>
+
+<style>
+.audio-input-small {
+  display: inline-block;
+}
+
+.volume-meter {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.mute[data-muted=true] {
+  color: rgb(250, 0, 0);
+}
+</style>

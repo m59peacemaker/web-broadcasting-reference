@@ -1,0 +1,39 @@
+{{#if videoTrack}}
+  <video
+    ref:video
+    muted
+    style="transform: scaleX({{ mirror ? -1 : 1 }});"
+  />
+{{/if}}
+{{#if audioTrack}}
+  <!-- the "muted" property on audio tag isn't working with mediaStream -->
+  <video
+    ref:audio
+    :muted
+  />
+{{/if}}
+
+<script>
+export default {
+  data () {
+    return {
+      videoTrack: undefined,
+      audioTrack: undefined,
+      mirror: false,
+      muted: false
+    }
+  },
+
+  oncreate () {
+    ;[ 'audio', 'video' ].forEach(type => {
+      this.observe(`${type}Track`, track => {
+        if (!track) { return }
+
+        const element = this.refs[type]
+        element.srcObject = new MediaStream([ track ])
+        element.play()
+      }, { defer: true })
+    })
+  }
+}
+</script>

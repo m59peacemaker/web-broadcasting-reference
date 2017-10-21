@@ -1,0 +1,31 @@
+<select class="audio-input-selector" bind:value="selected">
+  {{#if !inputs.length}}
+    <option>Default</option>
+  {{/if}}
+  {{#each inputs as input}}
+    <option value="{{ input }}">{{ input.label }}</option>
+  {{/each}}
+</select>
+
+<script>
+import mediaDeviceService from './lib/media-device-service'
+
+export default {
+  data () {
+    return {
+      inputs: [],
+      selected: undefined
+    }
+  },
+
+  computed: {
+    selected: (inputs, selected) => inputs.length
+      ? mediaDeviceService.deviceIsConnected(selected) ? selected : (inputs.default || inputs[0])
+      : undefined
+  },
+
+  oncreate () {
+    mediaDeviceService.on('audioinputs', inputs => this.set({ inputs }))
+  }
+}
+</script>

@@ -1,0 +1,27 @@
+<div class="active-audio-inputs">
+  {{#each activeInputs as input, index}}
+    <AudioInputSmall
+      volume="{{ input.volume }}"
+      muted="{{ deviceSettings[input.deviceId].muted }}"
+      on:toggleMuteRequest="fire('toggleMuteRequest', { input, index })" />
+  {{/each}}
+  {{#if activeInputs.length < devices.length}}
+    <AddAudioInput on:addAudioInputRequest />
+  {{/if}}
+</div>
+
+<script>
+import AddAudioInput from './AddAudioInput.html'
+import AudioInputSmall from './AudioInputSmall.html'
+
+export default {
+  components: { AddAudioInput, AudioInputSmall },
+  data () {
+    return {
+      devices: [],
+      deviceSettings: {},
+      activeInputs: []
+    }
+  }
+}
+</script>

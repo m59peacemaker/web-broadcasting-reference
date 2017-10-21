@@ -1,0 +1,31 @@
+<span>{{{ preparedSvg }}}</span>
+
+<script>
+const range = document.createRange()
+
+export default {
+  data () {
+    return {
+      svg: undefined,
+      size: undefined
+    }
+  },
+
+  computed: {
+    preparedSvg: (svg, size) => {
+      if (!svg) { return '' }
+      const node = range.createContextualFragment(svg).firstChild
+      if (size) {
+        node.setAttribute('width', size)
+      }
+      return node.outerHTML
+    }
+  }
+}
+</script>
+
+<style>
+svg {
+  fill: currentColor;
+}
+</style>

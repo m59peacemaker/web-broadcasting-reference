@@ -1,0 +1,39 @@
+<div class="add-audio-input">
+  <button on:click="fire('addAudioInputRequest')">
+    <span class="mic"><Svg svg="{{ icons.mic }}" /></span>
+    <span class="add"><Svg svg="{{ icons.add }}" /></span>
+  </button>
+</div>
+
+<script>
+import Svg from './lib/Svg.html'
+import { mic, add } from 'mdi-es6'
+
+export default {
+  components: { Svg },
+
+  data () {
+    return {
+      icons: { mic, add }
+    }
+  }
+}
+</script>
+
+<style>
+.add-audio-input {
+  padding: 5px;
+}
+
+.mic {
+  position: relative;
+  top: 3px;
+}
+
+.add {
+  position: absolute;
+  top: -3px;
+  right: -1px;
+  transform: scale(0.75);
+}
+</style>

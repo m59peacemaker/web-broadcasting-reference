@@ -1,0 +1,56 @@
+<canvas class="volume-meter" ref:canvas></canvas>
+
+<script>
+import getMany from './lib/get-many'
+
+const DEFAULTS = {
+  'volume': 0.8,
+  'normalColor': '#BadA55',
+  'highColor': '#fbc346',
+  'peakColor': '#fe2722'
+}
+Object.freeze(DEFAULTS)
+
+const dataKeys = Object.keys(DEFAULTS)
+
+export default {
+  setup (Component) {
+    Object.assign(Component, { DEFAULTS })
+  },
+
+  data () {
+    return Object.assign({}, DEFAULTS)
+  },
+
+  oncreate () {
+    const { canvas } = this.refs
+    // TODO: make it responsive to fill height/width of parent (make abstraction to auto do that)
+    canvas.width = 24
+    canvas.height = 100
+    Object.assign(this, { canvas, ctx: canvas.getContext('2d') })
+
+    this.observe('volume', () => this.render())
+  },
+
+  methods: {
+    getMany,
+
+    render () {
+      const { canvas, ctx } = this
+      const { volume, normalColor, highColor, peakColor } = this.getMany(dataKeys)
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      gradient.addColorStop(0.01, peakColor)
+      gradient.addColorStop(0.08, highColor)
+      gradient.addColorStop(0.2, highColor)
+      gradient.addColorStop(0.3, normalColor)
+
+      const y0 = canvas.height - (canvas.height * volume)
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, y0, canvas.width, canvas.height)
+    }
+  }
+}
+</script>
