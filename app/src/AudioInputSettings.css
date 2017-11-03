@@ -1,0 +1,14 @@
+.audio-input-settings {
+  & > header {
+    @import 'md/settings/header'
+    .back {
+      @import 'md/settings/header/back'
+    }
+    .title {
+      @import 'md/settings/header/title'
+    }
+    .controls {
+      @import 'md/settings/header/controls'
+    }
+  }
+}

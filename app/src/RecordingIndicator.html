@@ -1,0 +1,47 @@
+<div class="recording-indicator" data-lit="{{ lit }}">
+  <span class="light"><Svg svg="{{ icons.rec }}" /></span>
+  <span class="text">{{ text }}</span>
+</div>
+
+<script>
+import Svg from './lib/Svg.html'
+import { fiberManualRecord } from 'mdi-es6'
+
+// toggling `lit=!lit` every second in sync with a recording timer is good
+export default {
+  components: { Svg },
+  data () {
+    return {
+      icons: { rec: fiberManualRecord },
+      text: 'REC',
+      lit: true
+    }
+  }
+}
+</script>
+
+<style>
+.recording-indicator {
+  opacity: 1;
+  display: inline-block;
+  color: #FF0000;
+}
+
+.recording-indicator :global(span) {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.text {
+  margin-left: -4px;
+  font-size: 18px;
+}
+
+.light {
+  opacity: 0;
+}
+
+[data-lit="true"] .light {
+  opacity: 1;
+}
+</style>

@@ -1,14 +1,14 @@
-<select class="audio-input-selector" bind:value="selected">
-  {{#if !inputs.length}}
-    <option>Default</option>
+<select class="audio-input-selector" bind:value="selected" on:change="selectValue(event, selected)">
+  {{#if !inputEntries.length}}
+    <option value="default">Default</option>
   {{/if}}
-  {{#each inputs as input}}
-    <option value="{{ input }}">{{ input.label }}</option>
+  {{#each inputEntries as [ id, input ]}}
+    <option value="{{ id }}">{{ input.label }}</option>
   {{/each}}
 </select>
 
 <script>
-import mediaDeviceService from './lib/media-device-service'
+import entries from 'ordered-entries'
 
 export default {
   data () {
@@ -19,13 +19,16 @@ export default {
   },
 
   computed: {
-    selected: (inputs, selected) => inputs.length
-      ? mediaDeviceService.deviceIsConnected(selected) ? selected : (inputs.default || inputs[0])
-      : undefined
+    inputEntries: inputs => entries(inputs)
   },
 
   oncreate () {
-    mediaDeviceService.on('audioinputs', inputs => this.set({ inputs }))
+  },
+
+  methods: {
+    selectValue (event, inputId) {
+      console.log(inputId)
+    }
   }
 }
 </script>

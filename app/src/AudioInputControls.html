@@ -1,0 +1,44 @@
+<div class="audio-input-controls">
+  <div class="active-audio-inputs">
+    {{#each activeInputs as input, index}}
+      <AudioInputSmall :input :index />
+    {{/each}}
+  </div>
+  {{#if numberOfInputs > 0}}
+    <div class="audio-input-master">
+      <AudioInputSmall
+        volume="{{ master.volume }}"
+        muted="{{ master.muted }}"
+        monitoring="{{ master.monitoring }}"
+      />
+    </div>
+  {{/if}}
+  {{#if canActivateMoreInputs}}
+    <AddAudioInput on:addAudioInputRequest />
+  {{/if}}
+</div>
+
+<script>
+import AddAudioInput from './AddAudioInput.html'
+import AudioInputSmall from './AudioInputSmall_Smart.html'
+
+export default {
+  components: { AddAudioInput, AudioInputSmall },
+  data () {
+    return {
+      inputs: {},
+      deviceSettings: {},
+      activeInputs: [],
+      master: {},
+      canActivateMoreInputs: true
+    }
+  },
+
+  computed: {
+    numberOfInputs: inputs => Object.keys(inputs).length
+  }
+}
+</script>
+
+<style>
+</style>

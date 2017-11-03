@@ -1,5 +1,4 @@
 import Emitter from 'better-emitter'
-import getMediaDevices, { MediaDevicesTemplate } from './get-media-devices'
 
 // TODO: getMediaDevices is essentially part of this service, maybe make a package of this
 
@@ -21,8 +20,8 @@ const update = async () => {
   emitDevices(devices)
 }
 
-window.navigator.mediaDevices.addEventListener('devicechange', update)
-update()
+//window.navigator.mediaDevices.addEventListener('devicechange', update)
+//update()
 
 // TODO: API problems - what if this were called before update() has happened?
 const getDevicesList = () => [
@@ -38,7 +37,3 @@ const deviceIsConnected = deviceId => getDevice(deviceId) !== undefined
 Object.assign(service, { getDevicesList, getDevice, deviceIsConnected })
 
 export default service
-
-export {
-  MediaDevicesTemplate
-}

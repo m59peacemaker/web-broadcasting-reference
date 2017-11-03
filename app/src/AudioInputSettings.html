@@ -1,0 +1,240 @@
+<div class="audio-input-settings md-settings">
+  <header>
+    <span class="left-icon">
+      <Svg svg="{{ icons.arrowBack }}" />
+    </span>
+    <h3>Audio Input ({{ whichInput }})</h3>
+  </header>
+
+  <section class="settings-group">
+    <div class="setting">
+      <Svg className="left-icon" svg="{{ icons.mic }}" />
+      <div class="main">
+        <label>Device</label>
+        <AudioInputSelector :inputs />
+      </div>
+    </div>
+    <div class="setting">
+      <Svg className="left-icon" svg="{{ icons.volumeUp }}" />
+      <div class="main">
+        <label>Gain</label>
+        <p>Adjust the output level of this input device</p>
+        <input
+          type="range"
+          step="0.1"
+          min="0"
+          max="5"
+          bind:value="settings.gain"
+        />
+      </div>
+      <output
+        data-is-default="{{ settings.gain === 1 ? true : false }}"
+      >{{ settings.gain.toFixed(1) }}</output>
+    </div>
+  </section>
+  <section class="settings-group">
+    <h4>Processing</h4>
+
+    <div class="setting">
+      <div class="main">
+        <div class="radio-group">
+          {{#each modeChoices as mode}}
+            <label>
+              <input
+                type="radio"
+                name="processing-mode"
+                value="{{ mode.name }}"
+                bind:group="settings.processing.mode"
+              />
+              <span class="radio-button">
+                {{ mode.name }}
+              </span>
+            </label>
+          {{/each}}
+        </div>
+        <p>{{ modeDescription }}</p>
+      </div>
+    </div>
+
+    <fieldset disabled="{{ settings.processing.mode !== 'custom' }}">
+      <div class="setting">
+        <div class="main">
+          <label>Noise Suppression</label>
+        </div>
+        <Switch bind:checked="processingOpts.noiseSuppression" />
+      </div>
+      <div class="setting">
+        <div class="main">
+          <label>Auto Gain Control</label>
+        </div>
+        <Switch bind:checked="processingOpts.autoGainControl" />
+      </div>
+      <div class="setting">
+        <div class="main">
+          <label>Echo Cancellation</label>
+        </div>
+        <Switch bind:checked="processingOpts.echoCancellation" />
+      </div>
+    </fieldset>
+  </section>
+
+  <section class="settings-group">
+    <div class="setting">
+      <div class="main">
+        <label>Stereo</label>
+        <p>Using {{ usingChannelsDisplayText }} of this input device</p>
+      </div>
+      <Switch bind:checked="settings.stereo" />
+    </div>
+    <div class="setting">
+      <Svg className="left-icon" svg="{{ icons.hearing }}" />
+      <div class="main">
+        <label>Monitor</label>
+        <p>This input is {{ settings.monitoring ? '' : 'not ' }}being played through your speakers</p>
+      </div>
+      <Switch bind:checked="settings.monitoring" />
+    </div>
+    <div class="setting">
+      <button type="button">Reset to Defaults</button>
+    </div>
+  </section>
+</div>
+
+<script>
+import Switch from './lib/Switch.html'
+import audioProcessingModes from './schemas/audio-processing-modes'
+import AudioInputSelector from './AudioInputSelector.html'
+import { arrowBack, help, hearing, mic, volumeUp } from 'mdi-es6'
+import Svg from './lib/Svg.html'
+
+const modeChoices = [
+  { name: 'voice', description: 'Optimizing for speech occurring near the device' },
+  { name: 'ambient', description: 'Optimizing to capture all sounds' },
+  { name: 'custom', description: 'Using custom processing settings' }
+]
+
+export default {
+  components: { Switch, AudioInputSelector, Svg },
+
+  data () {
+    return {
+      icons: { arrowBack, help, hearing, mic, volumeUp },
+      index: 0,
+      master: false,
+      inputs: [],
+      settings: {
+        gain: 1,
+        stereo: true,
+        monitoring: false,
+        processing: {
+          mode: 'voice',
+          custom: audioProcessingModes.voice()
+        }
+      },
+      modeChoices
+    }
+  },
+
+  computed: {
+    whichInput: (index, master) => master ? 'Master' : index + 1,
+    processingOpts: settings => settings.processing.mode === 'custom'
+      ? settings.processing.custom
+      : audioProcessingModes[settings.processing.mode](),
+    modeDescription: settings =>
+      modeChoices.find(v => v.name === settings.processing.mode).description,
+    usingChannelsDisplayText: settings => settings.stereo
+      ? 'the left and right channels'
+      : 'only the left channel'
+  }
+}
+</script>
+
+<style>
+.audio-input-settings {
+  background: rgba(255, 255, 255, 0.98);
+  color: #555;
+  box-sizing: border-box;
+  min-height: 200px;
+  max-height: calc(100vh);
+  min-width: 275px;
+  max-width: 768px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.audio-input-settings:focus {
+  outline: none;
+  border-radius: 2px;
+}
+
+.audio-input-settings button {
+  opacity: 1;
+  padding: 15px;
+  color: #4C86AF;
+  width: 100%;
+}
+
+.audio-input-settings button:hover {
+  background: #DDD;
+}
+
+output[data-is-default="true"] {
+  font-weight: bold;
+  color: #4C86AF;
+  margin: 0 auto;
+}
+
+/* TODO: svelte #905 */
+fieldset[disabled=""] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.radio-group {
+  padding-bottom: 15px;
+  display: flex;
+}
+
+.radio-group label {
+  font-size: 15px;
+  padding: 0;
+}
+
+.radio-group .radio-button {
+  background: #DDD;
+  padding: 10px;
+  transition: all 250ms;
+}
+
+.radio-group label:first-child .radio-button {
+  border-radius: 2px 0 0 2px;
+}
+
+.radio-group label:last-child .radio-button {
+  border-radius: 0 2px 2px 0;
+}
+
+.radio-group .radio-button:hover {
+  cursor: pointer;
+}
+
+.radio-group input:checked + .radio-button,
+.radio-group input:checked + .radio-button:hover {
+  background: #4C86AF;
+  color: white;
+}
+
+.radio-group label input {
+  border: 0;
+  clip: rect(0 0 0 0);
+  -webkit-clip-path: inset(50%);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+}
+</style>

@@ -12,37 +12,6 @@ const Store = ({ id }) => {
   return { set, get, getAll, clear }
 }
 
-const audioProcessingModeConfigs = {
-  voice: {
-    echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true
-  },
-  ambient: {
-    echoCancellation: true,
-    noiseSuppression: false,
-    autoGainControl: false
-  }
-}
-
-const initialSettings = {
-  'audioinput': {
-    muted: false,
-    gain: 1,
-    stereo: true,
-    processing: {
-      mode: 'voice',
-      custom: audioProcessingModeConfigs['voice']
-    }
-  },
-  'audiooutput': {
-
-  },
-  'videoinput': {
-
-  }
-}
-
 const store = Store({ id: 'media-device-settings' })
 
 mediaDeviceService.on('devices', () => mediaDeviceService.getDevicesList()

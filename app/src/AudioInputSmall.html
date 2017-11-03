@@ -2,57 +2,74 @@
   <button
     class="settings"
     data-muted="{{ muted }}"
-    style="{{ iconStyle }}"
+    on:click="fire('request.toggleSettings')"
   ><Svg svg="{{ icons.settings }}" /></button>
   <VolumeMeter :volume />
-  <button
-    class="mute"
-    data-muted="{{ muted }}"
-    style="{{ iconStyle }}"
-    on:click="fire(FIRES.toggleMuteRequest)"
-  ><Svg svg="{{ icons.micOff }}" /></button>
+  {{#if error}}
+    <button
+    class="error"
+    on:click="fire('request.beginErrorResolution')"
+    ><Svg svg="{{ icons.errorOutline }}" /></button>
+  {{elseif monitoring}}
+    <button
+      class="monitor"
+      on:click="fire('request.stopMonitoring')"
+    ><Svg svg="{{ icons.hearing }}" /></button>
+  {{else}}
+    <button
+      class="mute"
+      data-muted="{{ muted }}"
+      on:click="fire('request.toggleMute')"
+    ><Svg svg="{{ icons.micOff }}" /></button>
+  {{/if}}
 </div>
 
 <script>
 import Svg from './lib/Svg.html'
-import { micOff, settings } from '../../../mdi-svg'
+import { micOff, hearing, errorOutline, settings } from 'mdi-es6'
 import VolumeMeter from './VolumeMeter.html'
-
-const FIRES = {
-  'toggleMuteRequest': 'toggleMuteRequest',
-  'toggleSettings': 'toggleSettings'
-}
-;[ FIRES ].forEach(v => Object.freeze(v))
 
 export default {
   components: { Svg, VolumeMeter },
 
-  setup (Component) {
-    Object.assign(Component, { FIRES })
-  },
-
   data () {
     return {
-      icons: { micOff, settings },
+      icons: { micOff, hearing, errorOutline, settings },
       muted: false,
-      volume: 0,
-      FIRES
+      volume: 0
     }
   }
 }
 </script>
 
 <style>
+@keyframes pulse {
+  90% { opacity: 0.7; }
+}
+
 .audio-input-small {
   display: inline-block;
 }
 
-.volume-meter {
+.audio-input-small :global(.volume-meter) {
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-.mute[data-muted=true] {
-  color: rgb(250, 0, 0);
+/* now having specificity problems... oy */
+button.monitor {
+  color: #FBC346;
+}
+
+button.error, button.mute[data-muted=true] {
+  color: rgb(255, 0, 0);
+}
+
+button.monitor, button.error {
+  opacity: 1;
+  animation: pulse 1.2s ease-out infinite;
+}
+.monitor:hover, .error:hover {
+  animation: none;
 }
 </style>

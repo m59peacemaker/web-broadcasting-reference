@@ -1,7 +1,9 @@
 <div class="add-audio-input">
   <button on:click="fire('addAudioInputRequest')">
-    <span class="mic"><Svg svg="{{ icons.mic }}" /></span>
-    <span class="add"><Svg svg="{{ icons.add }}" /></span>
+    <div class="mic-add">
+      <span class="mic"><Svg svg="{{ icons.mic }}" /></span>
+      <span class="add"><Svg svg="{{ icons.add }}" /></span>
+    </div>
   </button>
 </div>
 
@@ -25,15 +27,19 @@ export default {
   padding: 5px;
 }
 
+.mic-add {
+  position: relative;
+}
+
 .mic {
   position: relative;
-  top: 3px;
+  top: 2px;
 }
 
 .add {
   position: absolute;
-  top: -3px;
-  right: -1px;
+  top: -9px;
+  right: -6px;
   transform: scale(0.75);
 }
 </style>
