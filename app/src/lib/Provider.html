@@ -1,0 +1,36 @@
+<div
+  ref:provider
+  class="{{ providerComponentClass }}"
+><slot></slot></div>
+
+<script>
+const providerComponentClass = 'svelte-app-context-provider-component'
+const contextMap = new WeakMap()
+
+const getContext = element => {
+  const providerRef = element.closest(`.${providerComponentClass}`)
+
+  if (!providerRef) {
+    throw new Error('Context can not be provided. The element is not a child of a Provider component.')
+  }
+
+  return contextMap.get(providerRef)
+}
+
+export default {
+  setup (Component) {
+    Component.getContext = getContext
+  },
+
+  data () {
+    return {
+      context: {},
+      providerComponentClass
+    }
+  },
+
+  oncreate () {
+    this.observe('context', context => contextMap.set(this.refs.provider, context))
+  }
+}
+</script>

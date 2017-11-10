@@ -2,6 +2,106 @@ body {
   margin: 0;
 }
 
+.broadcast {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgb(10, 10, 10);
+  color: white;
+  font-family: 'Roboto', sans-serif;
+
+  /* may need to be a PR to svelte-modal */
+  & .svelte-modal:focus {
+    outline: none;
+  }
+
+  & .video-full {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+
+  & select {
+    padding: 8px;
+    font-size: 16px;
+    max-width: 100%;
+  }
+
+  & button {
+    color: white;
+    background: none;
+    border: none;
+    padding: 0;
+    display: block;
+    opacity: 0.7;
+    font-size: 16px;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  & button:hover,
+  & a:hover {
+    cursor: pointer;
+  }
+
+  & .volume-meter {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  & .audio-input-controls {
+    margin: 10px;
+    display: inline-block;
+    position: relative;
+
+    & .audio-input-small,
+    & .activate-next-audio-input {
+      background: rgba(85, 85, 85, .5);
+    }
+
+    & .active-audio-inputs,
+    & .audio-input-master {
+      display: inline-block;
+    }
+
+    & .audio-input-master,
+    & .activate-next-audio-input {
+      margin-left: -4px;
+      border: 4px solid rgba(85, 85, 85, 1);
+    }
+
+    & .activate-next-audio-input,
+    & .audio-input-small {
+      padding: 5px;
+    }
+
+    & .active-audio-inputs {
+      padding: 4px 0; /* padding to make the height match its bordered sibling */
+    }
+
+    & .audio-input-master {
+      display: inline-block;
+    }
+
+    & .activate-next-audio-input {
+      position: absolute;
+      left: 100%;
+      top: 4px;
+    }
+  }
+}
+
 .md-settings {
 
   $color: $0 {

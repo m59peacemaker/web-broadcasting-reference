@@ -1,0 +1,58 @@
+<script>
+import scale from 'svelte-transitions-scale'
+import ActivateNextAudioInput from './ActivateNextAudioInput.html'
+import AudioInputSmall from './AudioInputSmall_Smart.html'
+import KindGroup from './stateComponents/MediaDevices/schema/KindGroup'
+
+/*
+ * - if there are no active devices but there are some devices connected, just show the "add input" button
+ *
+ * - if there are no audio inputs connected, just show an icon that indicates "no audio input"
+ *   when pressing the indicator, flash message in a modal "no audio inputs available"
+ *
+ * - use master settings as initial settings for new inputs
+ */
+
+export default {
+  components: { ActivateNextAudioInput, AudioInputSmall },
+  transitions: { scale },
+
+  data () {
+    return {
+      inputs: KindGroup('audioinput')
+    }
+  }
+}
+</script>
+
+<div class="audio-input-controls">
+  <div class="active-audio-inputs">
+    {{#each inputs.active as deviceId}}
+      <div
+        class="transition-container"
+        in:scale="{ initial: 1.2, duration: 400 }"
+        out:scale="{ initial: 0, duration: 300 }"
+      >
+        <AudioInputSmall input="{{ inputs.devices[deviceId] }}" />
+      </div>
+    {{/each}}
+  </div>
+  {{#if inputs.active.length > 1}}
+    <div
+      class="audio-input-master"
+      in:scale="{ initial: 1.2, duration: 400 }"
+      out:scale="{ initial: 0, duration: 300 }"
+    >
+      <AudioInputSmall input="{{ inputs.master }}" />
+    </div>
+  {{/if}}
+  {{#if inputs.inactive.length}}
+    <ActivateNextAudioInput on:request.activateNext />
+  {{/if}}
+</div>
+
+<style>
+.transition-container {
+  display: inline-block;
+}
+</style>

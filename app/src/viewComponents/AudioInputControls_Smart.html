@@ -1,0 +1,36 @@
+<AudioInputControls :inputs ref:controls />
+<span ref:provided></span>
+
+<script>
+import flyd from 'flyd'
+import noop from 'nop'
+import Provider from './lib/Provider.html'
+import KindGroup from './stateComponents/MediaDevices/schema/KindGroup'
+import AudioInputControls from './AudioInputControls.html'
+import addOnWildcard from './lib/add-on-wildcard'
+
+// TODO: it might be cool to have some nested providers that slice the model down to only what their children components can/want to know about, that way those children don't as large of a tree to wade through
+
+export default {
+  components: { AudioInputControls },
+
+  data () {
+    return {
+      inputs: KindGroup('audioinput')
+    }
+  },
+
+  oncreate () {
+    addOnWildcard(this.refs.controls)
+
+    const { mediaDevices } = Provider.getContext(this.refs.provided)
+
+    flyd.on(devices => this.set({ inputs: devices.audioinput }), mediaDevices.model)
+
+    this.refs.controls.on('*', (eventName, event) => {
+      const [ _, request ] = eventName.match(/^request\.(.+)/)
+      mediaDevices.actions.audioinput[request](event)
+    })
+  }
+}
+</script>

@@ -6,6 +6,8 @@ Tracks need to be stopped (`track.stop()`) when you are done with them.
 
 Tracks from `mediaStreamDestination.stream` are dependent upon the tracks in the sources that are connected to the destination (as you would expect).
 
-Accessing multiple audio input devices at once seems to be work.
+Accessing multiple audio input devices at once seems to work everywhere.
 
-Accessing a video input while there is an active track for a different video input does not work on mobile. Unsure on desktop and unable to test due to only posessing one desktop webcam for now. From what I hear, this should work on desktop, and it technically works on mobile, but most hardware is unable to deliver both at once and results in an error.
+Accessing a video input while there is an active track for a different video input does not work on mobile. Unsure on desktop and unable to test due to only posessing one desktop webcam for now. From what I hear, this should work on desktop, and it technically works on mobile, but most hardware is unable to deliver both at once and results in an error. There are several android phones where this should work.
+
+It would be really sweet to live broadcast 360 video with something like Essential Phone.

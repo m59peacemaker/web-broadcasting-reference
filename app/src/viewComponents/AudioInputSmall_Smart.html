@@ -1,0 +1,33 @@
+<script>
+import flyd from 'flyd'
+import AudioInputSmall from './AudioInputSmall.html'
+import Provider from './lib/Provider.html'
+import noop from 'nop'
+import Device from './stateComponents/MediaDevices/schema/Device'
+import addOnWildcard from './lib/add-on-wildcard'
+
+export default {
+  components: { AudioInputSmall },
+
+  data () {
+    return {
+      input: Device('audioinput'),
+    }
+  },
+
+  oncreate () {
+    addOnWildcard(this.refs.audioInputSmall)
+
+    const { mediaDevices } = Provider.getContext(this.refs.provided)
+
+    this.refs.audioInputSmall.on('*', (eventName, event) => {
+      const [ _, request ] = eventName.match(/^request\.(.+)/)
+      mediaDevices.actions.audioinput[request](event)
+    })
+
+  }
+}
+</script>
+
+<AudioInputSmall :input ref:audioInputSmall />
+<span ref:provided></span>

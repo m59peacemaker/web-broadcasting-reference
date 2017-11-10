@@ -1,0 +1,75 @@
+<div class="audio-input-small">
+  <button
+    class="settings"
+    on:click="fire('request.toggleSettings')"
+  ><Svg svg="{{ icons.settings }}" /></button>
+  <VolumeMeter volume="input.state.volume" />
+  {{#if input.state.error}}
+    <button
+    class="error"
+    on:click="fire('request.beginErrorResolution')"
+    ><Svg svg="{{ icons.errorOutline }}" /></button>
+  {{elseif input.settings.monitoring}}
+    <button
+      class="monitor"
+      on:click="fire('request.toggleMonitoring')"
+    ><Svg svg="{{ icons.hearing }}" /></button>
+  {{else}}
+    <button
+      class="mute"
+      data-muted="{{ input.settings.muted }}"
+      on:click="fire('request.toggleMuted')"
+    ><Svg svg="{{ icons.micOff }}" /></button>
+  {{/if}}
+</div>
+
+<script>
+import noop from 'nop'
+import { micOff, hearing, errorOutline, settings } from 'mdi-es6'
+import Svg from './lib/Svg.html'
+import VolumeMeter from './VolumeMeter.html'
+import Device from './stateComponents/MediaDevices/schema/Device'
+
+export default {
+  components: { Svg, VolumeMeter },
+
+  data () {
+    return {
+      icons: { micOff, hearing, errorOutline, settings },
+      input: Device('audioinput')
+    }
+  }
+}
+</script>
+
+<style>
+@keyframes pulse {
+  90% { opacity: 0.7; }
+}
+
+.audio-input-small {
+  display: inline-block;
+}
+
+.audio-input-small :global(.volume-meter) {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* now having specificity problems... oy */
+button.monitor {
+  color: #FBC346;
+}
+
+button.error, button.mute[data-muted=true] {
+  color: rgb(255, 0, 0);
+}
+
+button.monitor, button.error {
+  opacity: 1;
+  animation: pulse 1.2s ease-out infinite;
+}
+.monitor:hover, .error:hover {
+  animation: none;
+}
+</style>

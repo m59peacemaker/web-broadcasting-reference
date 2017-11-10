@@ -1,0 +1,146 @@
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+<Provider context="{{ appContext }}">
+  <div class="broadcast">
+    <AudioInputControls/>
+    <!--
+    <div class="overlays">
+      <Overlay>
+        <VideoInputSelector bind:selected="selectedVideoInput">
+          {{ (selectedVideoInput || {}).deviceId || 'No video inputs available' }}
+        </VideoInputSelector>
+    </div>
+    <StreamingMedia
+      ref:localMedia
+      :videoTrack
+      mirror="{{ frontFacing }}"
+      :audioTrack
+      muted="{{ !monitorMic }}"
+    />
+    <Modal center="false" initiallyHidden="{{ false }}">
+      <AudioInputSettings inputs="{{ devices.settings.audioinput }}" />
+    </Modal>
+  -->
+  </div>
+</Provider>
+
+<script>
+import 'webrtc-adapter'
+import AudioInputControls from './AudioInputControls_Smart.html'
+import AudioInputSettings from './AudioInputSettings.html'
+import Overlay from './Overlay.html'
+import AudioInputSelector from './AudioInputSelector.html'
+import VideoInputSelector from './VideoInputSelector.html'
+import StreamingMedia from './Video.html'
+import Modal from 'svelte-modal'
+import RecordingIndicator from './RecordingIndicator.html'
+import RafLoop from './lib/raf-loop'
+import { getDeep, setDeep, observeDeep, push } from 'svelte-extras'
+import omitDeep from './lib/omit-deep'
+import flyd from 'flyd'
+import flydObj from 'flyd/module/obj'
+// import mediaDeviceService from './services/media-devices'
+import Provider from './lib/Provider.html'
+import Devices from './stateComponents/MediaDevices/schema'
+
+const setDeepObject = function (keypath, object) {
+  return setDeep.call(this, keypath, Object.assign(this.getDeep(keypath), object))
+}
+const audioContext = new AudioContext()
+
+export default {
+  components: {
+    AudioInputControls,
+    AudioInputSettings,
+    Overlay,
+    AddAudioInput,
+    AudioInputSmall,
+    AudioInputSelector,
+    VideoInputSelector,
+    RecordingIndicator,
+    Modal,
+    StreamingMedia,
+    Provider
+  },
+
+  data () {
+    return {
+      devices: Devices()
+    }
+  },
+
+  oncreate () {
+    /*const { mediaDevices } = Provider.getContext(this.refs.provided)
+    Object.assign(this, mediaDevices.actions)
+    this.setDeep('devices', mediaDevices.model())
+    flyd.on(devices => this.setDeep('devices', devices), mediaDevices.model)
+    */
+  },
+
+  methods: {
+    setDeep,
+    activate: () => {},
+    toggleMute: () => {}
+/*    push,
+    getDeep,
+    setDeep,
+    setDeepObject,
+    observeDeep,
+    toggleMute (deviceId) {
+      const { track } = this.getDeep('activeDevices.inputs.audio')
+        .find(input => input.deviceId === deviceId)
+      track.enabled = !track.enabled
+      this.setDeep(`deviceSettings.${deviceId}.muted`, !track.enabled)
+    },
+    getFirstInactiveInput (type) {
+      const devices = this.getDeep(`devices.inputs.${type}`)
+      const activeInputs = this.getDeep('activeDevices.inputs.audio')
+
+      const activeDeviceIds = activeInputs.map(input => input.deviceId)
+      return devices.find(device => !activeDeviceIds.includes(device.deviceId))
+    },
+    addAudioInput () {
+      const device = this.getFirstInactiveInput('audio')
+
+      if (!device) {
+        throw new Error('there are no unused audio input devices available')
+      }
+
+      const index = this.getDeep('activeDevices.inputs.audio').length
+      const keypath = `activeDevices.inputs.audio[${index}]`
+      this.push('activeDevices.inputs.audio', InitialDeviceState.audio(device.deviceId))
+
+      const updateAudioSource = async () => {
+        const state = this.getDeep(keypath)
+
+        if (state.sourceTrack) {
+          state.sourceTrack.stop()
+          state.rafLoop.cancel()
+        }
+
+        const settings = this.getDeep(`deviceSettings.${state.deviceId}`)
+        const audioConstraints = getAudioInputConstraints(state.deviceId, settings)
+
+        const stream = await getUserMedia({ audio: audioConstraints })
+        const sourceTrack = stream.getAudioTracks()[0]
+
+        const gainTrack = GainTrack(audioContext, sourceTrack)
+        const volumeAnalyser = TrackVolumeAnalyser(audioContext, gainTrack.track)
+        const updateVolume = () => this.setDeep(`${keypath}.volume`, volumeAnalyser.getVolume())
+        const rafLoop = RafLoop(updateVolume)
+        const track = gainTrack.track
+
+        if (settings.muted) {
+          track.enabled = false
+        }
+
+        this.setDeepObject(keypath, { track, sourceTrack, rafLoop })
+      }
+
+      this.observeDeep(`${keypath}.deviceId`, updateAudioSource)
+    }*/
+  }
+}
+</script>
+
+<style>
+</style>
