@@ -11,7 +11,7 @@ const makeConstraints = () => {
   return {}
 }
 
-export default (model$, { getUserMedia }) => {
+const AudioinputActions = (model$, { getUserMedia }) => {
   const activate = () => {
     /* TODO: what if this is called while already activating?
       - cancel last?
@@ -86,4 +86,8 @@ export default (model$, { getUserMedia }) => {
     toggleMonitoring,
     setConnected
   }
+}
+
+export {
+  AudioinputActions
 }

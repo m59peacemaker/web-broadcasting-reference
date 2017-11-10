@@ -14,7 +14,7 @@ const AudioinputProcessingModes = {
   })
 }
 
-export default () => mergeDeep(MediaDeviceModel(), {
+const AudioinputModelOverlay = () => ({
   state: {
     volume: 0,
     track: null
@@ -30,6 +30,10 @@ export default () => mergeDeep(MediaDeviceModel(), {
   }
 })
 
+const AudioinputModel = () => mergeDeep(MediaDeviceModel(), AudioinputModelOverlay())
+
 export {
+  AudioinputModel,
+  AudioinputModelOverlay,
   AudioinputProcessingModes
 }

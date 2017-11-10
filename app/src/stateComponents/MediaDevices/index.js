@@ -8,10 +8,7 @@ import append from 'ramda/src/append'
 import not from 'ramda/src/not'
 import pipe from 'ramda/src/pipe'
 import ConnectedMediaDevicesStream from '../../lib/connected-media-devices-stream'
-import { KindSettings } from './schema/Settings'
-import kinds from './schema/kinds'
-import prepareAndGroupDevices from './lib/prepare-and-group-devices'
-import Actions from './actions/Shared'
+import kinds from './kinds'
 
 const nest = (path, updateFn) =>
   function nestedUpdate (mapFn) {

@@ -4,4 +4,7 @@ const Videoinput = () => {
   }
 }
 
-export default Videoinput
+export * from './Model'
+export {
+  Videoinput
+}

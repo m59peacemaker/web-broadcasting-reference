@@ -1,10 +1,19 @@
 import { MediaDeviceModel } from '../'
 import mergeDeep from 'deepmerge'
 
-export default () => deepmerge(MediaDeviceModel(), {
+const VideoinputModelOverlay = () => ({
   state: {
     disabled: false,
     track: null
   },
-  settings: {}
+  settings: {
+
+  }
 })
+
+const VideoinputModel = () => mergeDeep(MediaDeviceModel(), VideoinputModelOverlay())
+
+export {
+  VideoinputModel,
+  VideoinputModelOverlay
+}

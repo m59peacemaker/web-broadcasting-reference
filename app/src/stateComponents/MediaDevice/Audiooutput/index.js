@@ -4,4 +4,14 @@ const Audiooutput = () => {
   }
 }
 
-export default Audiooutput
+const AudiooutputModelOverlay = () => ({
+
+})
+
+const AudiooutputModel = () => mergeDeep(MediaDeviceModel(), AudiooutputModelOverlay())
+
+export {
+  Audiooutput,
+  AudiooutputModel,
+  AudiooutputModelOverlay
+}

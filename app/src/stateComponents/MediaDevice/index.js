@@ -1,7 +1,6 @@
-import Videoinput from './Videoinput'
-import Audioinput from './Audioinput'
-import Audiooutput from './Audiooutput'
-import MediaDeviceModel from './Model'
+import { Videoinput } from './Videoinput'
+import { Audioinput } from './Audioinput'
+import { Audiooutput } from './Audiooutput'
 
 const map = {
   videoinput: Videoinput,
@@ -12,10 +11,10 @@ const map = {
 const MediaDevice = (mediaDeviceInfo, ...rest) =>
   map[mediaDeviceInfo.kind](mediaDeviceInfo, ...rest)
 
+export * from './Videoinput'
+export * from './Audioinput'
+export * from './Audiooutput'
+export * from './Model'
 export {
-  MediaDeviceModel,
-  MediaDevice,
-  Videoinput,
-  Audioinput,
-  Audiooutput,
+  MediaDevice
 }

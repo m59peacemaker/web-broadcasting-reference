@@ -5,7 +5,7 @@ const MediaDeviceInfoModel = () => ({
   label: ''
 })
 
-export default () => Object.assign(MediaDeviceInfoModel(), {
+const MediaDeviceModel = () => Object.assign(MediaDeviceInfoModel(), {
   state: {
     connected: false,
     activating: false,
@@ -16,5 +16,6 @@ export default () => Object.assign(MediaDeviceInfoModel(), {
 })
 
 export {
+  MediaDeviceModel,
   MediaDeviceInfoModel
 }

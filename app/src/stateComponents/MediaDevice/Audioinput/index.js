@@ -1,7 +1,7 @@
 import flyd from 'flyd'
 import  makeMediaDeviceInfoIntoNormalObject from '../lib/make-media-device-into-normal-object'
-import AudioinputModel, { AudioinputProcessingModes } from './Model'
-import AudioinputActions from './Actions'
+import { AudioinputModel } from './Model'
+import { AudioinputActions } from './Actions'
 
 const Model$ = (initialState) => {
   const model$ = flyd.stream(initialState)
@@ -23,10 +23,8 @@ const Audioinput = (mediaDeviceInfo, { getUserMedia }) => {
   return { model$, actions }
 }
 
-export default Audioinput
-
+export * from './Actions'
+export * from './Model'
 export {
-  AudioinputModel,
-  AudioinputActions,
-  AudioinputProcessingModes
+  Audioinput
 }
