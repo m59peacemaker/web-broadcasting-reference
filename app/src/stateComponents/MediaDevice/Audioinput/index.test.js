@@ -1,15 +1,16 @@
 import test from 'tape-universal'
 import { Audioinput } from './'
 import getUserMedia from '../../../test/lib/mock-get-user-media'
+const audioContext = new AudioContext()
 
 const micInfo = { deviceId: 'foo', label: 'Foo', groupId: '', kind: 'audioinput' }
 
 test('activate / deactivate', t => {
   t.plan(6)
 
-  const { model$, actions } = Audioinput(micInfo, { getUserMedia })
+  const { model$, actions } = Audioinput(micInfo, { getUserMedia, audioContext })
 
-  actions.setConnected(true)
+  actions.notifyOfConnect()
 
   actions.activate()
     .then(() => {

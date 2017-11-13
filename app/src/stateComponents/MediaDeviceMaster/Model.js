@@ -7,7 +7,8 @@ import { MediaDeviceModel } from '../MediaDevice'
 
 const MediaDeviceMasterModel = () => pipe(
   model => mergeDeep(MediaDeviceModel(), model),
-  over(lensProp('state', omit([ 'connected', 'active' ])))
+  omit([ 'deviceId', 'groupId' ]),
+  over(lensProp('state'), omit([ 'connected', 'active', 'activating', 'error' ]))
 )({
   master: true, // marker so things can check whether it is master i.e. `if (input.master)`
   label: 'Master'

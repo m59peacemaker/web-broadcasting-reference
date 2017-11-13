@@ -11,10 +11,10 @@ const map = {
 const MediaDevice = (mediaDeviceInfo, ...rest) =>
   map[mediaDeviceInfo.kind](mediaDeviceInfo, ...rest)
 
+export * from './Device'
 export * from './Videoinput'
 export * from './Audioinput'
 export * from './Audiooutput'
-export * from './Model'
 export {
   MediaDevice
 }

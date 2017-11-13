@@ -16,6 +16,6 @@ const MediaDeviceModel = () => Object.assign(MediaDeviceInfoModel(), {
 })
 
 export {
-  MediaDeviceModel,
-  MediaDeviceInfoModel
+  MediaDeviceInfoModel,
+  MediaDeviceModel
 }

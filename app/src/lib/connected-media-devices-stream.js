@@ -1,7 +1,7 @@
 import flyd from 'flyd'
 import { dropRepeatsWith } from 'flyd-droprepeats'
 import addEventListener from 'addeventlistener'
-import getMediaDevices from './get-media-devices'
+import collectMediaDevicesInfo from './collect-media-devices-info'
 const jsonEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 const ConnectedMediaDevicesStream = () => {
@@ -13,7 +13,7 @@ const ConnectedMediaDevicesStream = () => {
     deviceChanges$
   )
 
-  const devices$ = flyd.map(getMediaDevices, deviceChanges$)
+  const devices$ = flyd.map(collectMediaDevicesInfo, deviceChanges$)
   devices$([])
 
   /* unplugging a usb that has multiple devices will trigger multiple events,

@@ -1,17 +1,28 @@
 //import App from './App.html'
-//import MediaDevices from './stateComponents/MediaDevices'
-import ConnectedMediaDevices$ from './lib/connected-media-devices-stream'
-import { Audioinput } from './stateComponents/MediaDevice'
-const getUserMedia = constraints => window.navigator.mediaDevices.getUserMedia(constraints)
 import flyd from 'flyd'
+const getUserMedia = constraints => window.navigator.mediaDevices.getUserMedia(constraints)
+const audioContext = new AudioContext()
+import { MediaDevices } from './stateComponents/MediaDevices'
+import MediaDeviceConnectionEvents from './lib/media-device-connection-events'
+/*
+import { Audioinput } from './stateComponents/MediaDevice'
+const ai = Audioinput({ deviceId: 'default', kind: 'audioinput' }, { getUserMedia, audioContext })
+ai.model$.subscribe(model => console.log(model.state.volume))
+ai.actions.notifyOfConnect()
+ai.actions.activate()
+*/
 
-const model$ = flyd.stream()
-const audioinput = Audioinput(model$, { getUserMedia })
-window.audioinput = audioinput
-// TODO: this actually ought to be inside of App.html
+const mediaDevices = MediaDevices({ getUserMedia, audioContext })
+mediaDevices.model$.subscribe(console.log)
+
+const deviceConnectionEvents = MediaDeviceConnectionEvents()
+deviceConnectionEvents.on('connected', mediaDevices.actions.notifyOfDeviceConnect)
+deviceConnectionEvents.on('disconnected', mediaDevices.actions.notifyOfDeviceDisconnect)
+// TODO: do something with these errors
+deviceConnectionEvents.on('error', console.log)
+
+// TODO: this could be inside of App.html
 const init = () => {
-  const connectedDevices$ = ConnectedMediaDevices$()
-  const mediaDevices = MediaDevices({ connectedDevices$ })
   const appContext = { mediaDevices }
 
   const app = new App({

@@ -1,7 +1,7 @@
 import { MediaDeviceModel } from '../'
 import mergeDeep from 'deepmerge'
 
-const AudioinputProcessingModes = {
+const AudioinputProcessingModeModels = {
   voice: () => ({
     echoCancellation: true,
     noiseSuppression: true,
@@ -25,7 +25,7 @@ const AudioinputModelOverlay = () => ({
     stereo: true,
     processing: {
       mode: 'voice',
-      custom: AudioinputProcessingModes.voice() // default custom settings
+      custom: AudioinputProcessingModeModels.voice() // default custom settings
     }
   }
 })
@@ -35,5 +35,5 @@ const AudioinputModel = () => mergeDeep(MediaDeviceModel(), AudioinputModelOverl
 export {
   AudioinputModel,
   AudioinputModelOverlay,
-  AudioinputProcessingModes
+  AudioinputProcessingModeModels
 }

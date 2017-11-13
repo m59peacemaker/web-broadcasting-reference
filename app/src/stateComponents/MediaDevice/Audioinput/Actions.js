@@ -1,17 +1,16 @@
 import pipe from 'ramda/src/pipe'
-import merge from 'ramda/src/merge'
-import { over, set, toggle, toTrue, toFalse } from '../../../lib/model-helpers'
+import { set, merge, toggle } from '../../../lib/model-helpers'
+import makeConstraints from './lib/make-audioinput-constraints-from-settings'
+import { MediaDeviceActions } from '../Device'
+import TrackVolume$ from '../../../lib/TrackVolumeStream'
 
 const Errors = {
-  activateNotConnected: model =>
+  activateWhileNotConnected: model =>
     `audioinput ${model.label} (${model.deviceId}) cannot be activated because it is not connected`
 }
 
-const makeConstraints = () => {
-  return {}
-}
-
-const AudioinputActions = (model$, { getUserMedia }) => {
+const AudioinputActions = (originStreams, { getUserMedia, audioContext }) => {
+  const { state$, settings$ } = originStreams
   const activate = () => {
     /* TODO: what if this is called while already activating?
       - cancel last?
@@ -20,25 +19,26 @@ const AudioinputActions = (model$, { getUserMedia }) => {
     const model = model$()
 
     if (!model.state.connected) {
-      throw new Error(Errors.activateNotConnected(model))
+      throw new Error(Errors.activateWhileNotConnected(model))
     }
 
-    model$.update(pipe(
-      toTrue([ 'state', 'activating' ]),
-      set([ 'state', 'error' ], null)
-    ))
-    return getUserMedia({ audio: makeConstraints(model$().settings) })
+    state$.update(merge({
+      activating: true,
+      error: null
+    }))
+    return getUserMedia({ audio: makeConstraints(model.deviceId, model.settings) })
       .then(stream => {
         const track = stream.getTracks()[0]
-        track.enabled = model$().settings.muted
-        model$.update(pipe(
-          set([ 'state', 'track' ], track),
-          toTrue([ 'state', 'active' ]),
-          toFalse([ 'state', 'activating' ])
-        ))
+        track.enabled = !model$().settings.muted
+        state$.update(merge({
+          track,
+          volume: TrackVolume$(audioContext, track),
+          active: true,
+          activating: false
+        }))
       })
       .catch(err => {
-        model$.update(set([ 'state', 'error' ], err))
+        state$.update(set('error', err))
         deactivate()
       })
   }
@@ -46,19 +46,16 @@ const AudioinputActions = (model$, { getUserMedia }) => {
   const deactivate = () => {
     const { state } = model$()
     state.track && state.track.stop()
-    model$.update(over(
-      'state',
-      state => merge(state, {
-        track: null,
-        active: false,
-        volume: 0
-      })
-    ))
+    state$.update(merge({
+      track: null,
+      active: false,
+      volume: 0
+    }))
   }
 
   const setMuted = bool => model$.update(model => {
     model.state.track.enabled = bool
-    return set([ 'settings', 'muted' ], bool, model)
+    return set('muted', bool, model)
   })
   const mute = () => setMuted(true)
   const unMute = () => setMuted(false)
@@ -66,16 +63,14 @@ const AudioinputActions = (model$, { getUserMedia }) => {
     ? unMute()
     : mute()
 
-  const setMonitoring = bool => model$.update(set([ 'settings', 'monitoring' ], bool))
+  const setMonitoring = bool => settings$.update(set('monitoring', bool))
   const monitor = () => setMonitoring(true)
   const stopMonitoring = () => setMonitoring(false)
   const toggleMonitoring = () => model$().settings.monitoring
     ? monitor()
     : stopMonitoring()
 
-  const setConnected = bool => model$.update(set([ 'state', 'connected' ], bool))
-
-  return {
+  return Object.assign(MediaDeviceActions('audioinput', model$), {
     activate,
     deactivate,
     mute,
@@ -83,9 +78,8 @@ const AudioinputActions = (model$, { getUserMedia }) => {
     toggleMuted,
     monitor,
     stopMonitoring,
-    toggleMonitoring,
-    setConnected
-  }
+    toggleMonitoring
+  })
 }
 
 export {
