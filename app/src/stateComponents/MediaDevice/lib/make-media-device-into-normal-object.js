@@ -1,4 +1,4 @@
 import pick from 'ramda/src/pick'
-import { MediaDeviceInfoModel } from '../Device'
+import { MediaDeviceInfo } from '../Device'
 
-export default pick(Object.keys(MediaDeviceInfoModel()))
+export default pick(Object.keys(MediaDeviceInfo()))
