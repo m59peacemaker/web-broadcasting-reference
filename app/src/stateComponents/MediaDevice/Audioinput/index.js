@@ -1,39 +1,51 @@
-import  makeMediaDeviceInfoIntoNormalObject from '../lib/make-media-device-into-normal-object'
-import { AudioinputModel } from './Model'
-import { AudioinputActions } from './Actions'
-import assignStreamHelpers from '../../../lib/assign-stream-helpers'
-import { withStreamAtPaths } from '../../../lib/flyd-withStreamAtPath'
-import flyd from 'flyd'
+import applyEffects from '../../../lib/applyEffects'
+import createSources from './createSources'
+import createModel from './createModel'
+import createEffectRequests from './createEffectRequests'
 
-const Audioinput = (mediaDeviceInfo, { getUserMedia, audioContext }) => {
-  const deviceInfo = makeMediaDeviceInfoIntoNormalObject(mediaDeviceInfo)
-  const initialModel = Object.assign(
-    AudioinputModel(),
-  )
-  const model$ = assignStreamHelpers(flyd.stream(initialModel))
-  const publicModel$ = assignStreamHelpers(
-    withStreamAtPaths([
-    // TODO: figure out whether this model should be updating on every emit of state.volume
-    // or maybe state.volume should just remain a stream that something can consume if it wants
-      // but then it would have to check whether that stream has been updated to a different one
-      // and then ugly-fest again
-    // should raf() even be going on at this point? Maybe the analyser should just be handed out
-      // and something can grab the analyser and call raf() and use it
-      // though that would get back into ugly state territory... again
-      //[ 'state', 'volume' ]
-    ], model$)
-  )
+// TODO: ramda orPath might be useful for setting initial state from the outside world
+// init.map(orPath([ 'settings', processingMode ], defaults.settings.processingMode ]))
 
-  const actions = AudioinputActions(model$, { getUserMedia, audioContext })
+const Audioinput = ({ mediaDeviceInfo, mediator }) => {
+  /* assigning to model is unfortunate :/
+    but stuff that is created in `createSources()` will need to examine `model` later, at which time it will be populated. I think this like the cycle sink/source dependency problem, which it solves using a proxy stream */
+  const model = {}
+
+  const {
+    sources,
+    sanitizedSources,
+
+    /* TODO: not sure what to do with source rejections */
+    sourceRejections,
+    anySourceRejection
+  } = createSources({ model })
+
+  Object.assign(model, createModel({ mediaDeviceInfo, sources: sanitizedSources }))
+
+  const requests = createEffectRequests({ model, sources: sanitizedSources })
+
+  const effects = applyEffects(requests, mediator)
+
+  // TODO: make sure this destroy is complete and figure out the best place for it to go
+  // TODO: how does stuff "subscribe" to destroy? or would anything actually need to?
+  sources.actions.destroy.map(() => {
+    sources.actions.deactivate(null)
+    effects.cancel()
+
+    // is this even necessary? maybe this stuff would get garbage collected.
+    // deepForEach(model, value => flyd.isStream(value) && value.end(true))
+  })
 
   return {
-    model$: publicModel$,
-    actions
+    sources,
+    model,
+    requests,
+    sourceRejections,
+    anySourceRejection
   }
 }
 
-export * from './Model'
-export * from './Actions'
+export * from './InitialState'
 export {
   Audioinput
 }
