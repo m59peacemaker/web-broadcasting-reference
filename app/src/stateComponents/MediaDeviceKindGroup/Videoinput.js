@@ -2,7 +2,6 @@ import { MediaDeviceKindGroupModel, MediaDeviceKindGroupActions } from './KindGr
 import { VideoinputMasterModel } from '../MediaDeviceMaster'
 import mergeDeep from 'deepmerge'
 import Model$ from '../../lib/ModelStream'
-import { over } from '../../lib/model-helpers'
 import flydObj from 'flyd/module/obj'
 
 const VideoinputKindGroupModel = () => mergeDeep(MediaDeviceKindGroupModel(), {

@@ -12,7 +12,6 @@ test('Audioinput', t => {
     const { model, sources, requests } = audioinput
 
     sources.actions.activate(null)
-    console.log(audioinput.anySourceRejection())
     t.true(audioinput.anySourceRejection() instanceof Error)
     t.equal(requests.userMediaTrack(), undefined)
 

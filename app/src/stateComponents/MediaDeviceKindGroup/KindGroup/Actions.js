@@ -5,7 +5,6 @@ import assoc from 'ramda/src/assoc'
 import dissoc from 'ramda/src/dissoc'
 import tap from 'ramda/src/tap'
 import curry from 'ramda/src/curry'
-import { over } from '../../../lib/model-helpers'
 import { MediaDevice } from '../../MediaDevice'
 
 const MediaDeviceKindGroupActions = (

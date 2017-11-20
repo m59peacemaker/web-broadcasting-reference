@@ -1,10 +1,10 @@
 import { MediaDeviceMasterModel } from './'
-import { AudioinputModelOverlay } from '../MediaDevice/Audioinput'
+import { AudioinputInitialStateMixin } from '../MediaDevice/Audioinput'
 import mergeDeep from 'deepmerge'
 
 const AudioinputMasterModel = () => mergeDeep.all([
   MediaDeviceMasterModel(),
-  AudioinputModelOverlay(),
+  AudioinputInitialStateMixin(),
   {
     kind: 'audioinput'
   }

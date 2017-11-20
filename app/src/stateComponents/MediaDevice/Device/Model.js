@@ -15,7 +15,10 @@ const MediaDeviceModel = () => Object.assign(MediaDeviceInfoModel(), {
   settings: {}
 })
 
+const MediaDeviceInitialState = MediaDeviceModel
+
 export {
+  MediaDeviceInitialState,
   MediaDeviceInfoModel,
   MediaDeviceModel
 }
