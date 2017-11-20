@@ -1,16 +1,19 @@
-import noop from 'nop'
 import flyd from 'flyd'
+import noop from 'nop'
 import pipe from 'ramda/src/pipe'
 
-const applyEffects = (requests, mediator) => {
+const applyEffects = (requests, sink$ = noop) => {
   const cancel = Object.keys(requests)
-    .reduce((cancel, requestName) => {
-      const request$ = requests[requestName]
+    .reduce((cancel, requestType) => {
+      const request$ = requests[requestType]
       if (!flyd.isStream(request$)) {
-        throw new Error(`Effect request "${requestName}" is not a flyd stream. Got ${typeof request$}."`)
+        throw new Error(`Effect request "${requestType}" is not a flyd stream. Got ${typeof request$}."`)
       }
-      const handler = request => mediator ? mediator.call(requestName, request) : noop
-      const listener = flyd.on(handler, request$)
+
+      const listener = flyd.on(
+        request => sink$({ type: requestType, request }),
+        request$
+      )
       return pipe(cancel, () => listener.end(true))
     }, noop)
 
