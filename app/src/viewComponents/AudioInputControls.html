@@ -2,7 +2,6 @@
 import scale from 'svelte-transitions-scale'
 import ActivateNextAudioInput from './ActivateNextAudioInput.html'
 import AudioInputSmall from './AudioInputSmall_Smart.html'
-import KindGroup from './stateComponents/MediaDevices/schema/KindGroup'
 
 /*
  * - if there are no active devices but there are some devices connected, just show the "add input" button
@@ -19,7 +18,7 @@ export default {
 
   data () {
     return {
-      inputs: KindGroup('audioinput')
+      inputs: {}
     }
   }
 }

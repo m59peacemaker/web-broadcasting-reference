@@ -1,9 +1,10 @@
+<AudioInputSmall :input ref:audioInputSmall />
+<span ref:provided></span>
+
 <script>
 import flyd from 'flyd'
 import AudioInputSmall from './AudioInputSmall.html'
 import Provider from './lib/Provider.html'
-import noop from 'nop'
-import Device from './stateComponents/MediaDevices/schema/Device'
 import addOnWildcard from './lib/add-on-wildcard'
 
 export default {
@@ -11,7 +12,7 @@ export default {
 
   data () {
     return {
-      input: Device('audioinput'),
+      input: {}
     }
   },
 
@@ -28,6 +29,3 @@ export default {
   }
 }
 </script>
-
-<AudioInputSmall :input ref:audioInputSmall />
-<span ref:provided></span>

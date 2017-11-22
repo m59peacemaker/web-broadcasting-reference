@@ -1,19 +1,12 @@
-import { VideoinputKindGroup } from './Videoinput'
-import { AudioinputKindGroup } from './Audioinput'
-import { AudiooutputKindGroup } from './Audiooutput'
+import { AudioinputGroup } from './Audioinput'
 
 const map = {
-  videoinput: VideoinputKindGroup,
-  audioinput: AudioinputKindGroup,
-  audiooutput: AudiooutputKindGroup
+  audioinput: AudioinputGroup,
 }
 
-const MediaDeviceKindGroup = (kind, ...args) => map[kind](...args)
+const MediaDeviceKindGroup = args => map[arg.kind](args)
 
-export * from './KindGroup'
-export * from './Videoinput'
 export * from './Audioinput'
-export * from './Audiooutput'
 export {
   MediaDeviceKindGroup
 }

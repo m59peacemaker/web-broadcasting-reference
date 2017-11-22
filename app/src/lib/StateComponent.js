@@ -17,7 +17,7 @@ const StateComponent = ({
   createSourcePlan,
   createModel,
   createEffectRequests,
-  getSink = noop
+  sink
 }) => {
 
   assertHasRequiredArguments({ createSourcePlan, createModel, createEffectRequests })
@@ -43,11 +43,9 @@ const StateComponent = ({
     cancel: cancelSources,
   } = createSources(createSourcePlan({ model, destroy }))
 
-  Object.assign(model, createModel({ sources: sanitizedSources }))
+  Object.assign(model, createModel({ sources: sanitizedSources, sink }))
 
   const requests = createEffectRequests({ model, sources: sanitizedSources })
-
-  const sink = getSink({ model, sources })
 
   const effects = applyEffects(requests, sink)
 

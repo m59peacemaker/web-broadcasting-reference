@@ -79,10 +79,12 @@ const createEffectRequests = ({ model, sources }) => {
     )([ model.settings.monitoring, model.state.track ]),
 
     // inputdevice
-    deviceConnectionNotifier: model.deviceId.map(deviceId => ({
-      deviceId,
-      stream: messages.deviceConnection
-    }))
+    deviceConnectionNotifier: flyd.stream({
+      kind: model.kind,
+      deviceId: model.deviceId,
+      onConnect: messages.deviceConnection,
+      onDisconnect: messages.deviceDisconnection
+    })
   }
 }
 

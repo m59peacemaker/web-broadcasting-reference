@@ -24,47 +24,31 @@
 </Provider>
 
 <script>
-import 'webrtc-adapter'
+import Modal from 'svelte-modal'
 import AudioInputControls from './AudioInputControls_Smart.html'
 import AudioInputSettings from './AudioInputSettings.html'
-import Overlay from './Overlay.html'
 import AudioInputSelector from './AudioInputSelector.html'
 import VideoInputSelector from './VideoInputSelector.html'
-import StreamingMedia from './Video.html'
-import Modal from 'svelte-modal'
 import RecordingIndicator from './RecordingIndicator.html'
-import RafLoop from './lib/raf-loop'
-import { getDeep, setDeep, observeDeep, push } from 'svelte-extras'
-import omitDeep from './lib/omit-deep'
-import flyd from 'flyd'
-import flydObj from 'flyd/module/obj'
-// import mediaDeviceService from './services/media-devices'
-import Provider from './lib/Provider.html'
-import Devices from './stateComponents/MediaDevices/schema'
 
-const setDeepObject = function (keypath, object) {
-  return setDeep.call(this, keypath, Object.assign(this.getDeep(keypath), object))
-}
-const audioContext = new AudioContext()
+import Provider from './lib/Provider.html'
 
 export default {
   components: {
     AudioInputControls,
     AudioInputSettings,
-    Overlay,
     AddAudioInput,
     AudioInputSmall,
     AudioInputSelector,
     VideoInputSelector,
     RecordingIndicator,
     Modal,
-    StreamingMedia,
     Provider
   },
 
   data () {
     return {
-      devices: Devices()
+      devices: {}
     }
   },
 
@@ -77,15 +61,7 @@ export default {
   },
 
   methods: {
-    setDeep,
-    activate: () => {},
-    toggleMute: () => {}
-/*    push,
-    getDeep,
-    setDeep,
-    setDeepObject,
-    observeDeep,
-    toggleMute (deviceId) {
+    /*toggleMute (deviceId) {
       const { track } = this.getDeep('activeDevices.inputs.audio')
         .find(input => input.deviceId === deviceId)
       track.enabled = !track.enabled

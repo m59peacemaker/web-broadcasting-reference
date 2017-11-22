@@ -101,11 +101,10 @@
 </div>
 
 <script>
-import Switch from './lib/Switch.html'
-import audioProcessingModes from './schemas/audio-processing-modes'
-import AudioInputSelector from './AudioInputSelector.html'
 import { arrowBack, help, hearing, mic, volumeUp } from 'mdi-es6'
+import Switch from './lib/Switch.html'
 import Svg from './lib/Svg.html'
+import AudioInputSelector from './AudioInputSelector.html'
 
 const modeChoices = [
   { name: 'voice', description: 'Optimizing for speech occurring near the device' },
@@ -128,7 +127,7 @@ export default {
         monitoring: false,
         processing: {
           mode: 'voice',
-          custom: audioProcessingModes.voice()
+          custom: {}
         }
       },
       modeChoices

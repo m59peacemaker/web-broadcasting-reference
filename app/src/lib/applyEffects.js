@@ -2,7 +2,7 @@ import flyd from 'flyd'
 import noop from 'nop'
 import pipe from 'ramda/src/pipe'
 
-const applyEffects = (requests, sink$ = noop) => {
+const applyEffects = (requests, sink = noop) => {
   const cancel = Object.keys(requests)
     .reduce((cancel, requestType) => {
       const request$ = requests[requestType]
@@ -11,7 +11,7 @@ const applyEffects = (requests, sink$ = noop) => {
       }
 
       const listener = flyd.on(
-        request => sink$({ type: requestType, request }),
+        request => sink({ type: requestType, request }),
         request$
       )
       return pipe(cancel, () => listener.end(true))

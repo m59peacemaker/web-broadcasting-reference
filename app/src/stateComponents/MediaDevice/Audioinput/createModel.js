@@ -29,23 +29,20 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
   const init = flyd.stream(AudioinputInitialState())
 
-  const deviceConnected = merge([
-    init.map(atPath([ 'state', 'connected' ])),
-    messages.deviceConnection
-  ])
-
-  const deviceDisconnect = filter(not, deviceConnected)
-
   const state = {
     // mediadevice
-    connected: deviceConnected,
+    connected: merge([
+      init.map(atPath([ 'state', 'connected' ])),
+      messages.deviceConnection.map(T),
+      messages.deviceDisconnection.map(F)
+    ]),
 
     /* inputdevice */
     active: merge([
       init.map(atPath([ 'state', 'active' ])),
       messages.userMediaTrack.map(T),
       actions.deactivate.map(F),
-      deviceDisconnect.map(F)
+      messages.deviceDisconnection.map(F)
     ]),
 
     activating: merge([
@@ -53,7 +50,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
       actions.activate.map(T),
       messages.userMediaTrack.map(F),
       messages.userMediaTrackError.map(F),
-      deviceDisconnect.map(F)
+      messages.deviceDisconnection.map(F)
     ]),
 
     deviceError: merge([
@@ -61,12 +58,12 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
       messages.userMediaTrack.map(toNull),
       messages.userMediaTrackError,
       actions.activate.map(toNull),
-      deviceDisconnect.map(toNull)
+      messages.deviceDisconnection.map(toNull)
     ]),
 
     track: merge([
       init.map(atPath([ 'state', 'track' ])),
-      deviceDisconnect.map(toNull),
+      messages.deviceDisconnection.map(toNull),
       actions.deactivate.map(toNull),
       messages.userMediaTrack
     ]),
@@ -75,7 +72,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
     // audioinput
     volume: merge([
       init.map(atPath([ 'state', 'volume' ])),
-      deviceDisconnect.map(() => 0),
+      messages.deviceDisconnection.map(() => 0),
       actions.deactivate.map(() => 0),
       messages.trackVolume
     ])
@@ -179,10 +176,11 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
       )
     })
 
-  return Object.assign(
-    flydObj.streamProps(deviceInfo),
-    { state, settings }
-  )
+  return {
+    ...deviceInfo,
+    state,
+    settings
+  }
 }
 
 export default createModel

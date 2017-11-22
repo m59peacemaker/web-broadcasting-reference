@@ -1,20 +1,12 @@
-import { Videoinput } from './Videoinput'
 import { Audioinput } from './Audioinput'
-import { Audiooutput } from './Audiooutput'
 
 const map = {
-  videoinput: Videoinput,
-  audioinput: Audioinput,
-  audiooutput: Audiooutput
+  audioinput: Audioinput
 }
 
-const MediaDevice = (mediaDeviceInfo, ...rest) =>
-  map[mediaDeviceInfo.kind](mediaDeviceInfo, ...rest)
+const MediaDevice = args => map[args.mediaDeviceInfo.kind](args)
 
-export * from './Device'
-export * from './Videoinput'
 export * from './Audioinput'
-export * from './Audiooutput'
 export {
   MediaDevice
 }

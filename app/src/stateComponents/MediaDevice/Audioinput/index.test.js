@@ -2,11 +2,19 @@ import test from 'tape-catch'
 import flyd from 'flyd'
 import filterStream from 'flyd/module/filter'
 import pipe from 'ramda/src/pipe'
+import pick from 'ramda/src/pick'
 import { Audioinput, AudioinputProcessingModeConfigs } from './'
 
 const micInfo = { deviceId: 'foo', label: 'Foo', groupId: '', kind: 'audioinput' }
 
 test('Audioinput', t => {
+  t.test('has media device info', t => {
+    const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
+    t.deepEqual(pick(Object.keys(micInfo), audioinput.model), micInfo)
+
+    t.end()
+  })
+
   t.test('does not try to activate while disconnected', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
@@ -25,7 +33,7 @@ test('Audioinput', t => {
     t.false(model.state.connected())
     t.false(model.state.active())
 
-    sources.messages.deviceConnection(true)
+    sources.messages.deviceConnection(null)
 
     t.true(model.state.connected())
     t.false(model.state.active())
@@ -37,10 +45,10 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.messages.deviceConnection(true)
+    sources.messages.deviceConnection(null)
     t.true(model.state.connected())
 
-    sources.messages.deviceConnection(false)
+    sources.messages.deviceDisconnection(null)
     t.false(model.state.connected())
 
     t.end()
@@ -50,7 +58,7 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.messages.deviceConnection(true)
+    sources.messages.deviceConnection(null)
     sources.actions.activate(null)
 
     t.true(model.state.activating())
@@ -70,7 +78,7 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.messages.deviceConnection(true)
+    sources.messages.deviceConnection(null)
     sources.actions.activate(null)
     sources.messages.userMediaTrack({ enabled: true })
     sources.actions.deactivate(null)
@@ -162,7 +170,7 @@ test('Audioinput', t => {
       // TODO: ditch this when applyConstraints is supported
       const userMediaTrackRequestCount$ = flyd.scan(count => count + 1, 0, requests.userMediaTrack)
 
-      sources.messages.deviceConnection(true)
+      sources.messages.deviceConnection(null)
       sources.actions.activate()
       sources.messages.userMediaTrack({ enabled: true })
 
@@ -230,7 +238,7 @@ test('Audioinput', t => {
 
       assertNoRequests()
 
-      sources.messages.deviceConnection(true)
+      sources.messages.deviceConnection(null)
       sources.actions.toggleNoiseSuppression(null)
 
       assertNoRequests()

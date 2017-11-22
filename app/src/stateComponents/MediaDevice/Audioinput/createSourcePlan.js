@@ -6,7 +6,7 @@ export default ({ model, destroy }) => ({
     /* inputdevice */
     activate: () => {
       if (!model.state.connected()) {
-        return new Error(`audioinput ${model.label()} (${model.deviceId()}) is not connected`)
+        return new Error(`audioinput ${model.label} (${model.deviceId}) is not connected`)
       }
     },
     deactivate: null,
@@ -52,6 +52,7 @@ export default ({ model, destroy }) => ({
     userMediaTrackError: null,
     /* fin inputdevice */
     // mediadevice
-    deviceConnection: null
+    deviceConnection: null,
+    deviceDisconnection: null
   }
 })

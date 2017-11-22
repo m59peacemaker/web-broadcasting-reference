@@ -1,6 +1,3 @@
-import { InputDeviceInitialState } from '../InputDevice'
-import mergeDeep from 'ramda/src/mergeDeepRight'
-
 const voice = () => ({
   echoCancellation: true,
   noiseSuppression: true,
@@ -17,10 +14,16 @@ const AudioinputProcessingModeConfigs = {
   custom: voice
 }
 
-const AudioinputInitialStateMixin = () => ({
+const AudioinputInitialState = () => ({
   state: {
-    volume: 0,
-    track: null
+    connected: false,
+    activating: false,
+    active: false,
+    deviceError: null,
+
+    track: null,
+
+    volume: 0
   },
   settings: {
     muted: false,
@@ -34,13 +37,7 @@ const AudioinputInitialStateMixin = () => ({
   }
 })
 
-const AudioinputInitialState = () => mergeDeep(
-  InputDeviceInitialState(),
-  AudioinputInitialStateMixin()
-)
-
 export {
   AudioinputInitialState,
-  AudioinputInitialStateMixin,
   AudioinputProcessingModeConfigs
 }

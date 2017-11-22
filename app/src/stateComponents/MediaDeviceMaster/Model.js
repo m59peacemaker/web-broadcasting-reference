@@ -3,7 +3,6 @@ import over from 'ramda/src/over'
 import lensProp from 'ramda/src/lensProp'
 import omit from 'ramda/src/omit'
 import mergeDeep from 'deepmerge'
-import { MediaDeviceModel } from '../MediaDevice'
 
 const MediaDeviceMasterModel = () => pipe(
   model => mergeDeep(MediaDeviceModel(), model),

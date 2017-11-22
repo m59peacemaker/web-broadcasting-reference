@@ -28,7 +28,6 @@ import noop from 'nop'
 import { micOff, hearing, errorOutline, settings } from 'mdi-es6'
 import Svg from './lib/Svg.html'
 import VolumeMeter from './VolumeMeter.html'
-import Device from './stateComponents/MediaDevices/schema/Device'
 
 export default {
   components: { Svg, VolumeMeter },
@@ -36,7 +35,7 @@ export default {
   data () {
     return {
       icons: { micOff, hearing, errorOutline, settings },
-      input: Device('audioinput')
+      input: {}
     }
   }
 }
