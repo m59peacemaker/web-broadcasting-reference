@@ -1,11 +1,10 @@
 import flyd from 'flyd'
 import flydObj from 'flyd/module/obj'
-import filter from 'flyd/module/filter'
 import merge from 'flyd/module/mergeall'
 import scanMerge from 'flyd/module/scanmerge'
 import switchLatest from 'flyd/module/switchlatest'
 
-import atPath from 'ramda/src/path'
+import propPath from 'ramda/src/path'
 import not from 'ramda/src/not'
 import T from 'ramda/src/T'
 import F from 'ramda/src/F'
@@ -32,21 +31,21 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
   const state = {
     // mediadevice
     connected: merge([
-      init.map(atPath([ 'state', 'connected' ])),
+      init.map(propPath([ 'state', 'connected' ])),
       messages.deviceConnection.map(T),
       messages.deviceDisconnection.map(F)
     ]),
 
     /* inputdevice */
     active: merge([
-      init.map(atPath([ 'state', 'active' ])),
+      init.map(propPath([ 'state', 'active' ])),
       messages.userMediaTrack.map(T),
       actions.deactivate.map(F),
       messages.deviceDisconnection.map(F)
     ]),
 
     activating: merge([
-      init.map(atPath([ 'state', 'activating' ])),
+      init.map(propPath([ 'state', 'activating' ])),
       actions.activate.map(T),
       messages.userMediaTrack.map(F),
       messages.userMediaTrackError.map(F),
@@ -54,7 +53,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
     ]),
 
     deviceError: merge([
-      init.map(atPath([ 'state', 'error' ])),
+      init.map(propPath([ 'state', 'error' ])),
       messages.userMediaTrack.map(toNull),
       messages.userMediaTrackError,
       actions.activate.map(toNull),
@@ -62,7 +61,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
     ]),
 
     track: merge([
-      init.map(atPath([ 'state', 'track' ])),
+      init.map(propPath([ 'state', 'track' ])),
       messages.deviceDisconnection.map(toNull),
       actions.deactivate.map(toNull),
       messages.userMediaTrack
@@ -71,7 +70,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
     // audioinput
     volume: merge([
-      init.map(atPath([ 'state', 'volume' ])),
+      init.map(propPath([ 'state', 'volume' ])),
       messages.deviceDisconnection.map(() => 0),
       actions.deactivate.map(() => 0),
       messages.trackVolume
@@ -80,26 +79,26 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
   const settings = {
     gain: merge([
-      init.map(atPath([ 'settings', 'gain' ])),
+      init.map(propPath([ 'settings', 'gain' ])),
       actions.setGain
     ]),
 
     muted: scanMerge([
-      [ init, (_, init) => atPath([ 'settings', 'muted' ], init) ],
+      [ init, (_, init) => propPath([ 'settings', 'muted' ], init) ],
       [ actions.mute, T ],
       [ actions.unMute, F ],
       [ actions.toggleMute, not ]
     ], false),
 
     monitoring: scanMerge([
-      [ init.map(atPath([ 'settings', 'monitoring' ])), flip(identity) ],
+      [ init.map(propPath([ 'settings', 'monitoring' ])), flip(identity) ],
       [ actions.monitor, T ],
       [ actions.stopMonitoring, F ],
       [ actions.toggleMonitoring, not ]
     ], false),
 
     stereo: scanMerge([
-      [ init.map(atPath([ 'settings', 'stereo' ])), flip(identity) ],
+      [ init.map(propPath([ 'settings', 'stereo' ])), flip(identity) ],
       [ actions.enableStereo, T ],
       [ actions.disableStereo, F ],
       [ actions.toggleStereo, not ]
@@ -107,14 +106,14 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
     processing: {
       mode: merge([
-        init.map(atPath([ 'settings', 'processing', 'mode' ])),
+        init.map(propPath([ 'settings', 'processing', 'mode' ])),
         actions.setProcessingMode
       ]),
 
       custom: {
         echoCancellation: scanMerge([
           [
-            init.map(atPath([ 'settings', 'processing', 'custom', 'echoCancellation' ])),
+            init.map(propPath([ 'settings', 'processing', 'custom', 'echoCancellation' ])),
             flip(identity)
           ],
           [ actions.enableEchoCancellation, T ],
@@ -124,7 +123,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
         noiseSuppression: scanMerge([
           [
-            init.map(atPath([ 'settings', 'processing', 'custom', 'noiseSuppression' ])),
+            init.map(propPath([ 'settings', 'processing', 'custom', 'noiseSuppression' ])),
             flip(identity)
           ],
           [ actions.enableNoiseSuppression, T ],
@@ -134,7 +133,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
         autoGainControl: scanMerge([
           [
-            init.map(atPath([ 'settings', 'processing', 'custom', 'autoGainControl' ])),
+            init.map(propPath([ 'settings', 'processing', 'custom', 'autoGainControl' ])),
             flip(identity)
           ],
           [ actions.enableAutoGainControl, T ],

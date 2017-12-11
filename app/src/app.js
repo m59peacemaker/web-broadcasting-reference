@@ -1,11 +1,10 @@
 import App from './viewComponents/App.html'
-import MediaDevices from './stateComponents/MediaDevices'
 import RequestSink from './RequestSink'
-
-const requestSink = RequestSink()
-const mediaDevices = MediaDevices({ sink: requestSink })
+import MediaDevices from './stateComponents/MediaDevices'
 
 const init = () => {
+  const requestSink = RequestSink()
+  const mediaDevices = MediaDevices({ sink: requestSink })
   const appContext = { mediaDevices }
 
   const app = new App({

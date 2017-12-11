@@ -1,5 +1,8 @@
+import flyd from 'flyd'
+import filter from 'flyd/module/filter'
+import pipe from 'ramda/src/pipe'
+import jsonEqual from '../lib/json-equal'
 import MediaDeviceConnectionEvents from '../lib/media-device-connection-events'
-const jsonEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 export default () => {
   const connectionChange$ = flyd.stream()

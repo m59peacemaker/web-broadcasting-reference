@@ -1,11 +1,32 @@
-<AudioInputControls :inputs ref:controls />
-<span ref:provided></span>
-
 <script>
 import flyd from 'flyd'
+import pipe from 'ramda/src/pipe'
+import map from 'ramda/src/map'
+import filter from 'ramda/src/filter'
+import when from 'ramda/src/when'
+import call from 'ramda/src/call'
 import addOnWildcard from './lib/add-on-wildcard'
 import Provider from './lib/Provider.html'
 import AudioInputControls from './AudioInputControls.html'
+
+const isCollection = v => Array.isArray(v)
+  || (Object.prototype.toString.call(v) === '[objectObject]')
+const extractDeep = collection => map(pipe(
+  when(flyd.isStream, call),
+  when(isCollection, extractDeep)
+))(collection)
+const combineDeep = collection => {
+  const streams = pipe(
+    map(v => isCollection(v) ? combineDeep(v) : v),
+    filter(flyd.isStream),
+    Object.values
+  )(collection)
+
+  return flyd.combine(
+    () => extractDeep(collection),
+    streams
+  )
+}
 
 // TODO: it might be cool to have some nested providers that slice the model down to only what their children components can/want to know about, that way those children don't as large of a tree to wade through
 
@@ -14,7 +35,11 @@ export default {
 
   data () {
     return {
-      inputs: KindGroup('audioinput')
+      deviceGroup: {
+        devices: {},
+        available: [],
+        active: []
+      }
     }
   },
 
@@ -22,13 +47,19 @@ export default {
     addOnWildcard(this.refs.controls)
 
     const { mediaDevices } = Provider.getContext(this.refs.provided)
-
-    flyd.on(devices => this.set({ inputs: devices.audioinput }), mediaDevices.model)
+    const state$ = combineDeep(mediaDevices.audioinput.model)
+    window.a = mediaDevices.audioinput
+    flyd.on(deviceGroup => {
+      //this.set({ deviceGroup })
+    }, state$)
 
     this.refs.controls.on('*', (eventName, event) => {
       const [ _, request ] = eventName.match(/^request\.(.+)/)
-      mediaDevices.actions.audioinput[request](event)
+      //mediaDevices.actions.audioinput[request](event)
     })
   }
 }
 </script>
+
+<AudioInputControls :deviceGroup ref:controls />
+<span ref:provided></span>

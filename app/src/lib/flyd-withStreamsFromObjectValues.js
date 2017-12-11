@@ -1,5 +1,6 @@
 import flyd from 'flyd'
 import map from 'ramda/src/map'
+import filter from 'ramda/src/filter'
 
 /* everytime source$ emits
     - end previous dynamic child stream
@@ -24,16 +25,16 @@ const withStreamsFromObjectValues = source$ => {
     child$.end(true)
     child$ = flyd.combine(
       () => push(self$),
-      Object.values(source$())
-      // to make it support objects whose values are not all streams:
-      // values(state).filter(flyd.isStream)
+      pipe(
+        Object.values,
+        filter(flyd.isStream)
+      )(source$())
     )
 
     push(self$)
   }, [ source$ ])
 
-  // TODO: not sure if this cleanup code is sufficient
-  flyd.on(() => child$.end(true), new$.end)
+  flyd.endsOn(new$.end, child$)
 
   return new$
 }

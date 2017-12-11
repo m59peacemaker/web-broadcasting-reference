@@ -4,7 +4,7 @@ const map = {
   audioinput: AudioinputGroup,
 }
 
-const MediaDeviceKindGroup = args => map[arg.kind](args)
+const MediaDeviceKindGroup = args => map[args.kind](args)
 
 export * from './Audioinput'
 export {

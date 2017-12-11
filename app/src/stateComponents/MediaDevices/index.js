@@ -5,7 +5,7 @@ const MediaDevices = ({ sink }) => {
   return [
     'audioinput'
   ].reduce(
-    (groups, kind) => assoc(kind, MediaDeviceKindGroup(kind), group),
+    (groups, kind) => assoc(kind, MediaDeviceKindGroup({ kind }), groups),
     {}
   )
 }

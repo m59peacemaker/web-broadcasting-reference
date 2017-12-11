@@ -1,7 +1,8 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
 <Provider context="{{ appContext }}">
+  <span ref:provided></span>
   <div class="broadcast">
-    <AudioInputControls/>
+    <AudioInputControls />
     <!--
     <div class="overlays">
       <Overlay>
@@ -30,7 +31,6 @@ import AudioInputSettings from './AudioInputSettings.html'
 import AudioInputSelector from './AudioInputSelector.html'
 import VideoInputSelector from './VideoInputSelector.html'
 import RecordingIndicator from './RecordingIndicator.html'
-
 import Provider from './lib/Provider.html'
 
 export default {
@@ -48,16 +48,15 @@ export default {
 
   data () {
     return {
-      devices: {}
+      appContext: null
     }
   },
 
   oncreate () {
-    /*const { mediaDevices } = Provider.getContext(this.refs.provided)
-    Object.assign(this, mediaDevices.actions)
-    this.setDeep('devices', mediaDevices.model())
-    flyd.on(devices => this.setDeep('devices', devices), mediaDevices.model)
-    */
+    //const { mediaDevices } = Provider.getContext(this.refs.provided)
+    //Object.assign(this, mediaDevices.actions)
+    //this.setDeep('devices', mediaDevices.model())
+    //flyd.on(devices => this.setDeep('devices', devices), mediaDevices.model)
   },
 
   methods: {

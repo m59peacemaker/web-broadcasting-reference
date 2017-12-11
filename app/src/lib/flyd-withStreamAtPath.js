@@ -41,5 +41,6 @@ const withStreamAtPaths = (paths, source$) => paths.reduce(flip(withStreamAtPath
 export default withStreamAtPath
 
 export {
+  withStreamAtPath,
   withStreamAtPaths
 }

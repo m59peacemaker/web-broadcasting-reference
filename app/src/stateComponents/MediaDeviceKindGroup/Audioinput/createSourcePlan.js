@@ -11,7 +11,7 @@ export default ({ model, destroy }) => {
 
         const { kind, label, deviceId } = mediaDeviceInfo
 
-        if (model.devices[deviceId]) {
+        if (model.devices()[deviceId]) {
           return new Error(`${kind} ${label} is already registered`)
         }
 

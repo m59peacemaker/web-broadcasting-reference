@@ -18,7 +18,7 @@ export default {
 
   data () {
     return {
-      inputs: {}
+      deviceGroup: {}
     }
   }
 }
@@ -26,26 +26,26 @@ export default {
 
 <div class="audio-input-controls">
   <div class="active-audio-inputs">
-    {{#each inputs.active as deviceId}}
+    {{#each deviceGroup.active as activeInput}}
       <div
         class="transition-container"
         in:scale="{ initial: 1.2, duration: 400 }"
         out:scale="{ initial: 0, duration: 300 }"
       >
-        <AudioInputSmall input="{{ inputs.devices[deviceId] }}" />
+        <AudioInputSmall input="{{ activeInput }}" />
       </div>
     {{/each}}
   </div>
-  {{#if inputs.active.length > 1}}
+  {{#if false && deviceGroup.active.length > 1}}
     <div
       class="audio-input-master"
       in:scale="{ initial: 1.2, duration: 400 }"
       out:scale="{ initial: 0, duration: 300 }"
     >
-      <AudioInputSmall input="{{ inputs.master }}" />
+      <AudioInputSmall input="{{ deviceGroup.master }}" />
     </div>
   {{/if}}
-  {{#if inputs.inactive.length}}
+  {{#if deviceGroup.available.length}}
     <ActivateNextAudioInput on:request.activateNext />
   {{/if}}
 </div>

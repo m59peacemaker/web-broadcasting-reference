@@ -8,7 +8,7 @@ const AudioinputGroupInitialState = () => ({
   disconnected: [],
   active: [],
   available: [],
-  devices: [],
+  devices: {},
   master: {}
 })
 

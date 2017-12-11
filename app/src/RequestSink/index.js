@@ -1,4 +1,5 @@
 import flyd from 'flyd'
+import assoc from 'ramda/src/assoc'
 import deviceConnectionNotifier from './deviceConnectionNotifier'
 
 /* import 'webrtc-adapter' */
