@@ -1,10 +1,10 @@
-import { Stream } from 'wark'
+import * as W from 'wark'
 
 export default ({ sources, model }) => {
   const { messages } = sources
 
   return {
-    deviceConnectionNotifier: Stream({
+    deviceConnectionNotifier: W.Stream({
       kind: 'audioinput',
       onConnect: messages.deviceConnection
     })

@@ -1,4 +1,4 @@
-import * as wark from 'wark'
+import * as W from 'wark'
 import pipe from 'ramda/src/pipe'
 import map from 'ramda/src/map'
 import filter from 'ramda/src/filter'
@@ -21,20 +21,20 @@ const deviceIsAvailable = both(
 export default ({ sources, sink }) => {
   const { actions, messages } = sources
 
-  const deviceSources = wark.merge([ actions.registerDevice, messages.deviceConnection ])
+  const deviceSources = W.merge([ actions.registerDevice, messages.deviceConnection ])
 
-  const devices = wark.scanMerge
+  const devices = W.scanMerge
     ([
       [
         deviceSources,
-        (devices, mediaDeviceInfo) => devices[mediaDeviceInfo.deviceId]
+        devices => mediaDeviceInfo => devices[mediaDeviceInfo.deviceId]
           ? devices
           : assoc(mediaDeviceInfo.deviceId, MediaDevice({ mediaDeviceInfo, sink }), devices)
       ],
       [
         actions.unregisterDevice,
-        (devices, device) => {
-          if (devices[device.deviceId].model.state.active()) {
+        devices => device => {
+          if (devices[device.deviceId].model.state.active.get()) {
             devices[device.deviceId].sources.actions.deactivate()
           }
           return dissoc(device.deviceId, devices)
@@ -43,13 +43,19 @@ export default ({ sources, sink }) => {
     ])
     ({})
 
-  const deviceModels = wark.map
-    (pipe(Object.values, map(prop('model'))))
-    (devices)
-
-  /* anytime deviceModels changes (a device was registered or unregistered),
-      update which streams are being depended upon
+  // this is probably still wrong :/
+  /* anything computed from multiple devices needs to be recalced when:
+    1. `devices` emits (device discovered or forgotten)
+    2. the device properties being used in the calculation change
   */
+  /*const devices = pipe
+    (
+      W.map (pipe(Object.values, map(prop('model')), W.combineCollection)),
+      W.switchImmediate
+    )
+    (devices)
+  */
+
   /*const computed = flyd.map(
     models => // array of models, create a stream from it
       pipe(

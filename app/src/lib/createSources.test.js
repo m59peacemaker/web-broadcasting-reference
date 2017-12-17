@@ -22,9 +22,8 @@ const flatSourcePlanWithSanitizers = {
   foo: null,
   bar: null,
   setText: v => {
-    console.log('test')
     if (typeof v !== 'string') {
-      return new Error('not string')
+      throw new Error('not string')
     }
     return v.trim()
   }
@@ -35,7 +34,7 @@ const deepSourcePlanWithSanitizers = {
   nest: {
     handleTheTruth: bool => {
       if (bool !== true) {
-        return new Error('I can only handle the truth')
+        throw new Error('I can only handle the truth')
       }
       return bool
     },

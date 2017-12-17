@@ -79,6 +79,7 @@
     "svelte-modal": "^0.4.0",
     "svelte-transitions": "^1.1.1",
     "svelte-transitions-scale": "^1.0.0",
+    "try_catch": "^1.0.2",
     "wark": "file:../../wark",
     "webrtc-adapter": "^5.0.6"
   }

@@ -147,7 +147,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
     (
       W.map
         (mode => mode === 'custom'
-          ? W.combineObject(settings.processing.custom)
+          ? W.combineCollection(settings.processing.custom)
           : W.Stream(AudioinputProcessingModeConfigs[mode]())
         ),
       W.switchImmediate
@@ -163,7 +163,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
 
   settings.mediaConstraints = pipe
     (
-      W.combineObject,
+      W.combineCollection,
       W.map
         (settings => {
           const { stereo, processing } = settings

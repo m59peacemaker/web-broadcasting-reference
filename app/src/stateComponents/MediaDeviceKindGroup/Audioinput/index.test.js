@@ -10,17 +10,17 @@ test('AudioinputGroup', t => {
     const audioinputGroup = AudioinputGroup()
     const { sources, model } = audioinputGroup
 
-    t.deepEqual(model.devices(), {})
+    t.deepEqual(model.devices.get(), {})
 
     sources.actions.registerDevice(fooMic)
 
-    t.true(model.devices().foo, 'from actions.register')
-    t.equal(model.devices().foo.model.deviceId, 'foo')
+    t.true(model.devices.get().foo, 'from actions.register')
+    t.equal(model.devices.get().foo.model.deviceId, 'foo')
 
     sources.messages.deviceConnection(barMic)
 
-    t.true(model.devices().bar, 'from messages.deviceConnection')
-    t.equal(model.devices().bar.model.deviceId, 'bar')
+    t.true(model.devices.get().bar, 'from messages.deviceConnection')
+    t.equal(model.devices.get().bar.model.deviceId, 'bar')
 
     t.end()
   })
@@ -32,14 +32,14 @@ test('AudioinputGroup', t => {
     sources.actions.registerDevice(fooMic)
     sources.messages.deviceConnection(barMic)
 
-    t.true(model.devices().foo)
-    t.true(model.devices().bar)
+    t.true(model.devices.get().foo)
+    t.true(model.devices.get().bar)
 
     sources.actions.unregisterDevice(fooMic)
     sources.actions.unregisterDevice(barMic)
 
-    t.false(model.devices().foo)
-    t.false(model.devices().bar)
+    t.false(model.devices.get().foo)
+    t.false(model.devices.get().bar)
 
     t.end()
   })
@@ -48,7 +48,7 @@ test('AudioinputGroup', t => {
     const audioinputGroup = AudioinputGroup()
     const { requests } = audioinputGroup
 
-    t.true(requests.deviceConnectionNotifier())
+    t.true(requests.deviceConnectionNotifier.get())
 
     t.end()
   })

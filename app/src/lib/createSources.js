@@ -1,5 +1,6 @@
 import { Stream, map, merge, partition } from 'wark'
 import pipe from 'ramda/src/pipe'
+import tryCatch from 'try_catch'
 
 const isObj = value => value != undefined && typeof value === 'object'
 const isError = v => v instanceof Error
@@ -7,7 +8,10 @@ const isError = v => v instanceof Error
 const applySanitizer = (sanitizer, source) => {
   const [ sourceRejection, sanitizedSource ] = partition
     (isError)
-    (map (sanitizer) (source))
+    (map
+      (v => tryCatch(() => sanitizer(v), err => err))
+      (source)
+    )
   return { sanitizedSource, sourceRejection }
 }
 

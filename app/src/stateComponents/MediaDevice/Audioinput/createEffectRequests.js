@@ -68,7 +68,7 @@ const createEffectRequests = ({ model, sources }) => {
 
     audioTrackPlayer: pipe
       (
-        W.combineObject,
+        W.combineCollection,
         W.scan
           (previousRequest => ({ monitoring, track }) => ({
             action: (monitoring && track) ? 'play' : 'stop',
