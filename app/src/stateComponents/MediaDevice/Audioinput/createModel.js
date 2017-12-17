@@ -2,6 +2,7 @@ import * as W from 'wark'
 
 import propPath from 'ramda/src/path'
 import not from 'ramda/src/not'
+import uncurryN from 'ramda/src/uncurryN'
 import T from 'ramda/src/T'
 import F from 'ramda/src/F'
 import pipe from 'ramda/src/pipe'
@@ -13,6 +14,7 @@ import prop from 'ramda/src/prop'
 import { AudioinputInitialState, AudioinputProcessingModeConfigs } from './InitialState'
 import makeMediaDeviceInfoIntoNormalObject from '../lib/make-media-device-into-normal-object'
 
+const firstNot = uncurryN(2, not)
 const Null = () => null
 
 const createModel = ({ mediaDeviceInfo, sources }) => {
@@ -82,7 +84,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
         W.map (propPath([ 'settings', 'muted' ])) (init),
         W.map (T) (actions.mute),
         W.map (F) (actions.unMute),
-        [ actions.toggleMute, not ]
+        [ actions.toggleMute, firstNot ]
       ])
       (false),
 
@@ -91,7 +93,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
         W.map (propPath([ 'settings', 'monitoring' ])) (init),
         W.map (T) (actions.monitor),
         W.map (F) (actions.stopMonitoring),
-        [ actions.toggleMonitoring, not ]
+        [ actions.toggleMonitoring, firstNot ]
       ])
       (false),
 
@@ -100,7 +102,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
         W.map (propPath([ 'settings', 'stereo' ])) (init),
         W.map (T) (actions.enableStereo),
         W.map (F) (actions.disableStereo),
-        [ actions.toggleStereo, not ]
+        [ actions.toggleStereo, firstNot ]
       ])
       (true),
 
@@ -116,7 +118,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
             W.map (propPath([ 'settings', 'processing', 'custom', 'echoCancellation' ])) (init),
             W.map (T) (actions.enableEchoCancellation),
             W.map (F) (actions.disableEchoCancellation),
-            [ actions.toggleEchoCancellation, not ]
+            [ actions.toggleEchoCancellation, firstNot ]
           ])
           (true),
 
@@ -125,7 +127,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
             W.map (propPath([ 'settings', 'processing', 'custom', 'noiseSuppression' ])) (init),
             W.map (T) (actions.enableNoiseSuppression),
             W.map (F) (actions.disableNoiseSuppression),
-            [ actions.toggleNoiseSuppression, not ]
+            [ actions.toggleNoiseSuppression, firstNot ]
           ])
           (true),
 
@@ -134,7 +136,7 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
             W.map (propPath([ 'settings', 'processing', 'custom', 'autoGainControl' ])) (init),
             W.map (T) (actions.enableAutoGainControl),
             W.map (F) (actions.disableAutoGainControl),
-            [ actions.toggleAutoGainControl, not ]
+            [ actions.toggleAutoGainControl, firstNot ]
           ])
           (true)
       }

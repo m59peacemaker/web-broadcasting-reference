@@ -32,7 +32,10 @@ const createEffectRequests = ({ model, sources }) => {
         error: messages.userMediaTrackError
       }))
     )
-    ([ actions.activate, applyConstraintsRq$ ])
+    ([
+      actions.activate,
+      applyConstraintsRq$
+    ])
 
   // inputdevice
   const stopTrackRq$ = pipe
@@ -59,8 +62,8 @@ const createEffectRequests = ({ model, sources }) => {
 
     audioTrackManager: W.merge([
       stopTrackRq$,
-      trackMuteAdjustRq$,
-      applyConstraintsRq$
+      trackMuteAdjustRq$
+      //applyConstraintsRq$
     ]),
 
     audioTrackPlayer: pipe

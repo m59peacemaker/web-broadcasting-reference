@@ -6,7 +6,7 @@ import { Audioinput, AudioinputProcessingModeConfigs } from './'
 
 const micInfo = { deviceId: 'foo', label: 'Foo', groupId: '', kind: 'audioinput' }
 
-test.only('Audioinput', t => {
+test('Audioinput', t => {
   t.test('has media device info', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     t.deepEqual(pick(Object.keys(micInfo), audioinput.model), micInfo)
@@ -165,17 +165,18 @@ test.only('Audioinput', t => {
       const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
       const { model, sources, requests } = audioinput
 
-      const audioTrackManagerRequests$ = pipe
+      /*const applyConstraintsRequests$ = pipe
         (
           W.filter (({ action }) => action === 'applyConstraints'),
           W.scan (requests => request => requests.concat(request)) ([])
         )
         (requests.audioTrackManager)
+      */
 
       // TODO: ditch this when applyConstraints is supported
-      const userMediaTrackRequestCount$ = W.scan
-        (count => v => count + 1)
-        (0)
+      const userMediaTrackRequests$ = W.scan
+        (requests => request => requests.concat(request))
+        ([])
         (requests.userMediaTrack)
 
       sources.messages.deviceConnection()
@@ -186,26 +187,22 @@ test.only('Audioinput', t => {
       t.true(model.state.track.get())
       t.true(model.settings.stereo.get())
       t.equal(model.settings.mediaConstraints.get().channelCount, 2)
+      t.equal(userMediaTrackRequests$.get().length, 1)
 
       sources.actions.disableStereo()
 
+      t.equal(userMediaTrackRequests$.get().length, 2)
       t.equal(model.settings.mediaConstraints.get().channelCount, 1)
-
-      t.equal(userMediaTrackRequestCount$.get(), 1)
-      t.equal(audioTrackManagerRequests$.get().length, 1)
-
       t.equal(model.settings.processing.mode.get(), 'voice')
 
       sources.actions.disableNoiseSuppression()
 
       // nothing should happen because we're on "voice" mode
-      t.equal(userMediaTrackRequestCount$.get(), 1)
-      t.equal(audioTrackManagerRequests$.get().length, 1)
+      t.equal(userMediaTrackRequests$.get().length, 2)
 
       sources.actions.setProcessingMode('custom')
 
-      t.equal(userMediaTrackRequestCount$.get(), 2)
-      t.equal(audioTrackManagerRequests$.get().length, 2)
+      t.equal(userMediaTrackRequests$.get().length, 3)
 
       t.end()
     }
