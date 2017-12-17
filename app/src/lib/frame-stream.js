@@ -1,10 +1,10 @@
-import flyd from 'flyd'
+import * as W from 'wark'
 import RafLoop from './raf-loop'
 
 const FrameStream = () => {
-  const stream = flyd.stream(1)
-  const rafLoop = RafLoop(() => stream(1))
-  flyd.on(rafLoop.cancel, stream.end)
+  const stream = W.Stream(1)
+  const rafLoop = RafLoop(() => stream.set(1))
+  W.map (rafLoop.cancel) (stream.end)
   return stream
 }
 

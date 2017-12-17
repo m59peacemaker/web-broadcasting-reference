@@ -1,10 +1,10 @@
-import flyd from 'flyd'
+import { Stream } from 'wark'
 
 export default ({ sources, model }) => {
   const { messages } = sources
 
   return {
-    deviceConnectionNotifier: flyd.stream({
+    deviceConnectionNotifier: Stream({
       kind: 'audioinput',
       onConnect: messages.deviceConnection
     })

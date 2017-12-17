@@ -5,7 +5,7 @@ export default ({ model, destroy }) => ({
     destroy,
     /* inputdevice */
     activate: () => {
-      if (!model.state.connected()) {
+      if (!model.state.connected.get()) {
         return new Error(`audioinput ${model.label} (${model.deviceId}) is not connected`)
       }
     },

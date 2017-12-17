@@ -1,11 +1,10 @@
-import flyd from 'flyd'
-import filter from 'flyd/module/filter'
+import { Stream, endsOn, map, filter } from 'wark'
 import pipe from 'ramda/src/pipe'
 import jsonEqual from '../lib/json-equal'
 import MediaDeviceConnectionEvents from '../lib/media-device-connection-events'
 
 export default () => {
-  const connectionChange$ = flyd.stream()
+  const connectionChange$ = Stream()
   const deviceConnectionEvents = MediaDeviceConnectionEvents()
 
   const unsubscribe = pipe(
@@ -22,23 +21,24 @@ export default () => {
   )
 
   const cancel = () => {
-    connection$.end(true)
-    disconnection$.end(true)
+    connection$.end()
+    disconnection$.end()
     unsubscribe()
   }
 
   const onRequest = request => {
     const mustMatch = [ 'kind', 'deviceId' ].filter(key => request[key])
 
-    pipe(
-      filter(
-        device => jsonEqual(
-          pick(mustMatch, device), pick(mustMatch, request)
-        )
-      ),
-      flyd.map(({ type, device }) => request[`${type}$`](device)),
-      flyd.endsOn(request.connection$.end)
-    )(connectionChange$)
+    pipe
+      (
+        filter
+          (device => jsonEqual(
+            pick(mustMatch, device), pick(mustMatch, request)
+          )),
+        map (({ type, device }) => request[`${type}$`](device)),
+        endsOn ([ request.connection$.end ])
+      )
+      (connectionChange$)
   }
 
   return { onRequest, cancel }

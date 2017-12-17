@@ -1,5 +1,5 @@
 import test from 'tape-catch'
-import flyd from 'flyd'
+import { isStream } from 'wark'
 import omit from 'ramda/src/omit'
 import createSources from './createSources'
 
@@ -22,6 +22,7 @@ const flatSourcePlanWithSanitizers = {
   foo: null,
   bar: null,
   setText: v => {
+    console.log('test')
     if (typeof v !== 'string') {
       return new Error('not string')
     }
@@ -62,7 +63,7 @@ const assertPropsAreStreams = (t, objects) => objects.forEach(
     .forEach(
       ([ key, value ]) => isObj(value)
         ? assertPropsAreStreams(t, [ value ])
-        : t.true(flyd.isStream(value))
+        : t.true(isStream(value))
     )
 )
 
@@ -115,17 +116,17 @@ test('createSources', t => {
     const sourcePlan = deepSourcePlanWithSanitizers
     const { sources, sanitizedSources, sourceRejections } = createSources(sourcePlan)
 
-    t.false(sourceRejections.setText())
     sources.setText(123)
-    t.equal(sourceRejections.setText().message, 'not string')
 
-    t.false(sourceRejections.nest.handleTheTruth())
+    t.equal(sourceRejections.setText.get().message, 'not string')
+    t.false(sourceRejections.nest.handleTheTruth.get())
+
     sources.nest.handleTheTruth(false)
-    const truthRejection = sourceRejections.nest.handleTheTruth().message
-    t.equal(typeof truthRejection, 'string', truthRejection)
+    const truthRejection = sourceRejections.nest.handleTheTruth.get().message
 
-    t.false(sanitizedSources.setText())
-    t.false(sanitizedSources.nest.handleTheTruth())
+    t.equal(typeof truthRejection, 'string', truthRejection)
+    t.false(sanitizedSources.setText.get())
+    t.false(sanitizedSources.nest.handleTheTruth.get())
 
     t.end()
   })
@@ -134,13 +135,16 @@ test('createSources', t => {
     const sourcePlan = deepSourcePlanWithSanitizers
     const { sources, sanitizedSources } = createSources(sourcePlan)
 
-    t.false(sanitizedSources.setText())
-    sources.setText('the text')
-    t.true(sanitizedSources.setText())
+    t.false(sanitizedSources.setText.get())
 
-    t.false(sanitizedSources.nest.handleTheTruth())
-    sources.nest.handleTheTruth(true)
-    t.true(sanitizedSources.nest.handleTheTruth())
+    sources.setText('the text')
+
+    t.true(sanitizedSources.setText.get())
+    t.false(sanitizedSources.nest.handleTheTruth.get())
+
+    sources.nest.handleTheTruth.set(true)
+
+    t.true(sanitizedSources.nest.handleTheTruth.get())
 
     t.end()
   })
@@ -149,9 +153,11 @@ test('createSources', t => {
     const sourcePlan = deepSourcePlanWithSanitizers
     const { sources, sanitizedSources } = createSources(sourcePlan)
 
-    t.false(sanitizedSources.setText())
+    t.false(sanitizedSources.setText.get())
+
     sources.setText('  the text  ')
-    t.equal(sanitizedSources.setText(), 'the text')
+
+    t.equal(sanitizedSources.setText.get(), 'the text')
 
     t.end()
   })

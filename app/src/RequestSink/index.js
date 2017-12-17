@@ -1,4 +1,4 @@
-import flyd from 'flyd'
+import { Stream, map } from 'wark'
 import assoc from 'ramda/src/assoc'
 import deviceConnectionNotifier from './deviceConnectionNotifier'
 
@@ -16,7 +16,7 @@ export default () => {
     {}
   )
 
-  const sink = flyd.stream()
-  sink.map(request => providers[request.type](request))
+  const sink = Stream()
+  map (request => providers[request.type](request)) (sink)
   return sink
 }

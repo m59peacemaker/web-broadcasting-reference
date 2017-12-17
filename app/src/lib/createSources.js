@@ -1,29 +1,30 @@
-import flyd from 'flyd'
-import filterSplit from './flyd-filterSplit'
+import { Stream, map, merge, partition } from 'wark'
 import pipe from 'ramda/src/pipe'
 
 const isObj = value => value != undefined && typeof value === 'object'
 const isError = v => v instanceof Error
 
 const applySanitizer = (sanitizer, source) => {
-  const [ sourceRejection, sanitizedSource ] = filterSplit(isError, source.map(sanitizer))
+  const [ sourceRejection, sanitizedSource ] = partition
+    (isError)
+    (map (sanitizer) (source))
   return { sanitizedSource, sourceRejection }
 }
 
 const createSource = value => {
-  const source = flyd.stream()
+  const source = Stream()
 
   const { sanitizedSource, sourceRejection } = typeof value === 'function'
     ? applySanitizer(value, source)
     : { sanitizedSource: source }
 
-  const cancel = () => source.end(true)
+  const cancel = source.end
 
   return { source, sanitizedSource, sourceRejection, cancel }
 }
 
 const createSources = sourcePlan => {
-  const anySourceRejection = flyd.stream()
+  const anySourceRejection = Stream()
 
   return Object
     .keys(sourcePlan)
@@ -41,7 +42,7 @@ const createSources = sourcePlan => {
           result.cancel = pipe(cancel, result.cancel)
           if (Object.values(sourceRejections).length) {
             result.sourceRejections[key] = sourceRejections
-            result.anySourceRejection = flyd.merge(anySourceRejection, result.anySourceRejection)
+            result.anySourceRejection = merge([ anySourceRejection, result.anySourceRejection ])
           }
         } else {
           const { source, sanitizedSource, sourceRejection, cancel } = createSource(value)
@@ -51,7 +52,7 @@ const createSources = sourcePlan => {
           result.cancel = pipe(cancel, result.cancel)
           if (sourceRejection) {
             result.sourceRejections[key] = sourceRejection
-            result.anySourceRejection = flyd.merge(sourceRejection, result.anySourceRejection)
+            result.anySourceRejection = merge([ sourceRejection, result.anySourceRejection ])
           }
         }
 
@@ -62,7 +63,7 @@ const createSources = sourcePlan => {
         sanitizedSources: { },
         sourceRejections: { },
         anySourceRejection,
-        cancel: () => anySourceRejection.end(true)
+        cancel: anySourceRejection.end
       }
     )
 }

@@ -1,13 +1,12 @@
 import test from 'tape-catch'
-import flyd from 'flyd'
-import filterStream from 'flyd/module/filter'
+import * as W from 'wark'
 import pipe from 'ramda/src/pipe'
 import pick from 'ramda/src/pick'
 import { Audioinput, AudioinputProcessingModeConfigs } from './'
 
 const micInfo = { deviceId: 'foo', label: 'Foo', groupId: '', kind: 'audioinput' }
 
-test('Audioinput', t => {
+test.only('Audioinput', t => {
   t.test('has media device info', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     t.deepEqual(pick(Object.keys(micInfo), audioinput.model), micInfo)
@@ -19,9 +18,12 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.actions.activate(null)
-    t.true(audioinput.anySourceRejection() instanceof Error)
-    t.equal(requests.userMediaTrack(), undefined)
+    t.false(audioinput.sourceRejections.actions.activate.get())
+
+    sources.actions.activate()
+
+    t.true(audioinput.sourceRejections.actions.activate.get())
+    t.equal(requests.userMediaTrack.get(), undefined)
 
     t.end()
   })
@@ -30,13 +32,13 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    t.false(model.state.connected())
-    t.false(model.state.active())
+    t.false(model.state.connected.get())
+    t.false(model.state.active.get())
 
-    sources.messages.deviceConnection(null)
+    sources.messages.deviceConnection()
 
-    t.true(model.state.connected())
-    t.false(model.state.active())
+    t.true(model.state.connected.get())
+    t.false(model.state.active.get())
 
     t.end()
   })
@@ -45,11 +47,13 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.messages.deviceConnection(null)
-    t.true(model.state.connected())
+    sources.messages.deviceConnection()
 
-    sources.messages.deviceDisconnection(null)
-    t.false(model.state.connected())
+    t.true(model.state.connected.get())
+
+    sources.messages.deviceDisconnection()
+
+    t.false(model.state.connected.get())
 
     t.end()
   })
@@ -58,18 +62,18 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.messages.deviceConnection(null)
-    sources.actions.activate(null)
+    sources.messages.deviceConnection()
+    sources.actions.activate()
 
-    t.true(model.state.activating())
-    t.false(model.state.track())
-    t.true('constraints' in requests.userMediaTrack())
+    t.true(model.state.activating.get())
+    t.false(model.state.track.get())
+    t.true('constraints' in requests.userMediaTrack.get())
 
     sources.messages.userMediaTrack({ enabled: true })
 
-    t.false(model.state.activating())
-    t.true(model.state.active())
-    t.true(model.state.track())
+    t.false(model.state.activating.get())
+    t.true(model.state.active.get())
+    t.true(model.state.track.get())
 
     t.end()
   })
@@ -78,14 +82,14 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    sources.messages.deviceConnection(null)
-    sources.actions.activate(null)
+    sources.messages.deviceConnection()
+    sources.actions.activate()
     sources.messages.userMediaTrack({ enabled: true })
-    sources.actions.deactivate(null)
+    sources.actions.deactivate()
 
-    t.false(model.state.track())
-    t.false(model.state.active())
-    t.true(model.state.connected())
+    t.false(model.state.track.get())
+    t.false(model.state.active.get())
+    t.true(model.state.connected.get())
 
     t.end()
   })
@@ -94,40 +98,40 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    t.equal(model.settings.processing.mode(), 'voice')
-    t.true(model.settings.processing.modeConfig().noiseSuppression)
-    t.true(model.settings.processing.custom.noiseSuppression())
+    t.equal(model.settings.processing.mode.get(), 'voice')
+    t.true(model.settings.processing.modeConfig.get().noiseSuppression)
+    t.true(model.settings.processing.custom.noiseSuppression.get())
 
-    sources.actions.disableNoiseSuppression(null)
+    sources.actions.disableNoiseSuppression()
 
-    t.false(model.settings.processing.custom.noiseSuppression())
-    t.true(model.settings.processing.modeConfig().noiseSuppression)
+    t.false(model.settings.processing.custom.noiseSuppression.get())
+    t.true(model.settings.processing.modeConfig.get().noiseSuppression)
 
     sources.actions.setProcessingMode('custom')
-    t.false(audioinput.anySourceRejection())
+    t.false(audioinput.anySourceRejection.get())
 
-    t.false(model.settings.processing.custom.noiseSuppression())
-    t.false(model.settings.processing.modeConfig().noiseSuppression)
+    t.false(model.settings.processing.custom.noiseSuppression.get())
+    t.false(model.settings.processing.modeConfig.get().noiseSuppression)
 
-    sources.actions.disableEchoCancellation(null)
+    sources.actions.disableEchoCancellation()
 
-    t.false(model.settings.processing.custom.echoCancellation())
-    t.false(model.settings.processing.modeConfig().echoCancellation)
+    t.false(model.settings.processing.custom.echoCancellation.get())
+    t.false(model.settings.processing.modeConfig.get().echoCancellation)
 
     sources.actions.setProcessingMode('voice')
 
-    t.false(model.settings.processing.custom.echoCancellation())
-    t.true(model.settings.processing.modeConfig().echoCancellation)
+    t.false(model.settings.processing.custom.echoCancellation.get())
+    t.true(model.settings.processing.modeConfig.get().echoCancellation)
 
-    t.true(model.settings.processing.modeConfig().noiseSuppression)
+    t.true(model.settings.processing.modeConfig.get().noiseSuppression)
 
     sources.actions.setProcessingMode('ambient')
 
-    t.false(model.settings.processing.modeConfig().noiseSuppression)
+    t.false(model.settings.processing.modeConfig.get().noiseSuppression)
 
     sources.actions.setProcessingMode('fweh')
-    t.true(audioinput.anySourceRejection(), audioinput.anySourceRejection())
-    audioinput.anySourceRejection(null)
+    t.true(audioinput.anySourceRejection.get(), audioinput.anySourceRejection.get())
+    audioinput.anySourceRejection()
 
     t.end()
   })
@@ -136,22 +140,21 @@ test('Audioinput', t => {
     const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
     const { model, sources, requests } = audioinput
 
-    t.true(model.settings.stereo())
-    t.equal(model.settings.mediaConstraints().channelCount, 2)
+    t.true(model.settings.stereo.get())
+    t.equal(model.settings.mediaConstraints.get().channelCount, 2)
 
-    sources.actions.disableStereo(null)
+    sources.actions.disableStereo()
 
-    t.equal(model.settings.mediaConstraints().channelCount, 1)
+    t.equal(model.settings.mediaConstraints.get().channelCount, 1)
+    t.true(model.settings.mediaConstraints.get().noiseSuppression)
 
-    t.true(model.settings.mediaConstraints().noiseSuppression)
+    sources.actions.disableNoiseSuppression()
 
-    sources.actions.disableNoiseSuppression(null)
-
-    t.true(model.settings.mediaConstraints().noiseSuppression)
+    t.true(model.settings.mediaConstraints.get().noiseSuppression)
 
     sources.actions.setProcessingMode('custom')
 
-    t.false(model.settings.mediaConstraints().noiseSuppression)
+    t.false(model.settings.mediaConstraints.get().noiseSuppression)
 
     t.end()
   })
@@ -162,42 +165,47 @@ test('Audioinput', t => {
       const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
       const { model, sources, requests } = audioinput
 
-      const audioTrackManagerRequests$ = pipe(
-        filterStream(({ action }) => action === 'applyConstraints'),
-        flyd.scan((requests, request) => requests.concat(request), [])
-      )(requests.audioTrackManager)
+      const audioTrackManagerRequests$ = pipe
+        (
+          W.filter (({ action }) => action === 'applyConstraints'),
+          W.scan (requests => request => requests.concat(request)) ([])
+        )
+        (requests.audioTrackManager)
 
       // TODO: ditch this when applyConstraints is supported
-      const userMediaTrackRequestCount$ = flyd.scan(count => count + 1, 0, requests.userMediaTrack)
+      const userMediaTrackRequestCount$ = W.scan
+        (count => v => count + 1)
+        (0)
+        (requests.userMediaTrack)
 
-      sources.messages.deviceConnection(null)
+      sources.messages.deviceConnection()
       sources.actions.activate()
       sources.messages.userMediaTrack({ enabled: true })
 
-      t.true(model.state.active())
-      t.true(model.state.track())
-      t.true(model.settings.stereo())
-      t.equal(model.settings.mediaConstraints().channelCount, 2)
+      t.true(model.state.active.get())
+      t.true(model.state.track.get())
+      t.true(model.settings.stereo.get())
+      t.equal(model.settings.mediaConstraints.get().channelCount, 2)
 
-      sources.actions.disableStereo(null)
+      sources.actions.disableStereo()
 
-      t.equal(model.settings.mediaConstraints().channelCount, 1)
+      t.equal(model.settings.mediaConstraints.get().channelCount, 1)
 
-      t.equal(userMediaTrackRequestCount$(), 1)
-      t.equal(audioTrackManagerRequests$().length, 1)
+      t.equal(userMediaTrackRequestCount$.get(), 1)
+      t.equal(audioTrackManagerRequests$.get().length, 1)
 
-      t.equal(model.settings.processing.mode(), 'voice')
+      t.equal(model.settings.processing.mode.get(), 'voice')
 
-      sources.actions.disableNoiseSuppression(null)
+      sources.actions.disableNoiseSuppression()
 
       // nothing should happen because we're on "voice" mode
-      t.equal(userMediaTrackRequestCount$(), 1)
-      t.equal(audioTrackManagerRequests$().length, 1)
+      t.equal(userMediaTrackRequestCount$.get(), 1)
+      t.equal(audioTrackManagerRequests$.get().length, 1)
 
       sources.actions.setProcessingMode('custom')
 
-      t.equal(userMediaTrackRequestCount$(), 2)
-      t.equal(audioTrackManagerRequests$().length, 2)
+      t.equal(userMediaTrackRequestCount$.get(), 2)
+      t.equal(audioTrackManagerRequests$.get().length, 2)
 
       t.end()
     }
@@ -209,45 +217,54 @@ test('Audioinput', t => {
       const audioinput = Audioinput({ mediaDeviceInfo: micInfo })
       const { model, sources, requests } = audioinput
 
-      const audioTrackManagerRequests$ = pipe(
-        filterStream(({ action }) => action === 'applyConstraints'),
-        flyd.scan((requests, request) => requests.concat(request), [])
-      )(requests.audioTrackManager)
+      const audioTrackManagerRequests$ = pipe
+        (
+          W.filter (({ action }) => action === 'applyConstraints'),
+          W.scan (requests => request => requests.concat(request)) ([])
+        )
+        (requests.audioTrackManager)
 
       // TODO: ditch this when applyConstraints is supported
-      const userMediaTrackRequestCount$ = flyd.scan(count => count + 1, 0, requests.userMediaTrack)
+      const userMediaTrackRequestCount$ = W.scan
+        (count => v => count + 1)
+        (0)
+        (requests.userMediaTrack)
 
       const assertNoRequests = () => {
-        t.equal(audioTrackManagerRequests$().length, 0)
-        t.equal(userMediaTrackRequestCount$(), 0)
+        t.equal(audioTrackManagerRequests$.get().length, 0)
+        t.equal(userMediaTrackRequestCount$.get(), 0)
       }
 
-      t.equal(model.settings.mediaConstraints().channelCount, 2)
+      t.equal(model.settings.mediaConstraints.get().channelCount, 2)
 
-      sources.actions.disableStereo(null)
+      sources.actions.disableStereo()
 
-      t.equal(model.settings.mediaConstraints().channelCount, 1)
+      t.equal(model.settings.mediaConstraints.get().channelCount, 1)
 
       assertNoRequests()
 
       sources.actions.setProcessingMode('custom')
 
-      t.true(model.settings.processing.modeConfig().noiseSuppression)
-      sources.actions.toggleNoiseSuppression(null)
-      t.false(model.settings.processing.modeConfig().noiseSuppression)
+      t.true(model.settings.processing.modeConfig.get().noiseSuppression)
+
+      sources.actions.toggleNoiseSuppression()
+
+      t.false(model.settings.processing.modeConfig.get().noiseSuppression)
 
       assertNoRequests()
 
-      sources.messages.deviceConnection(null)
-      sources.actions.toggleNoiseSuppression(null)
+      sources.messages.deviceConnection()
+      sources.actions.toggleNoiseSuppression()
 
       assertNoRequests()
 
-      sources.actions.activate(null)
-      t.equal(userMediaTrackRequestCount$(), 1)
+      sources.actions.activate()
 
-      sources.actions.toggleNoiseSuppression(null)
-      t.equal(audioTrackManagerRequests$().length, 0)
+      t.equal(userMediaTrackRequestCount$.get(), 1)
+
+      sources.actions.toggleNoiseSuppression()
+
+      t.equal(audioTrackManagerRequests$.get().length, 0)
 
       t.end()
     }

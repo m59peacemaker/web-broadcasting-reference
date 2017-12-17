@@ -1,10 +1,10 @@
-import flyd from 'flyd'
+import * as W from 'wark'
 
 const assignStreamHelpers = stream$ => {
-  const update = mapFn => stream$(mapFn(stream$()))
+  const update = mapFn => stream$.set(mapFn(stream$.get()))
   const subscribe = listener => {
-    const end$ = flyd.on(listener, stream$)
-    return { cancel: () => end$(true) }
+    const end$ = W.map (listener) (stream$)
+    return { cancel: end$ }
   }
   return Object.assign(stream$, { update, subscribe })
 }

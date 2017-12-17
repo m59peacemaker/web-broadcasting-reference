@@ -1,7 +1,4 @@
-import flyd from 'flyd'
-import flydObj from 'flyd/module/obj'
-import flatMap from 'flyd/module/flatmap'
-import scanMerge from 'flyd/module/scanmerge'
+import * as wark from 'wark'
 import pipe from 'ramda/src/pipe'
 import map from 'ramda/src/map'
 import filter from 'ramda/src/filter'
@@ -14,7 +11,6 @@ import atPath from 'ramda/src/path'
 import prop from 'ramda/src/prop'
 import assoc from 'ramda/src/assoc'
 import dissoc from 'ramda/src/dissoc'
-import switchImmediate from '../../../lib/flyd-switchImmediate'
 import { MediaDevice } from '../../MediaDevice'
 
 const deviceIsAvailable = both(
@@ -25,29 +21,31 @@ const deviceIsAvailable = both(
 export default ({ sources, sink }) => {
   const { actions, messages } = sources
 
-  const deviceSources = flyd.merge(actions.registerDevice, messages.deviceConnection)
+  const deviceSources = wark.merge([ actions.registerDevice, messages.deviceConnection ])
 
-  const devices = scanMerge([
-    [
-      deviceSources,
-      (devices, mediaDeviceInfo) => devices[mediaDeviceInfo.deviceId]
-        ? devices
-        : assoc(mediaDeviceInfo.deviceId, MediaDevice({ mediaDeviceInfo, sink }), devices)
-    ],
-    [
-      actions.unregisterDevice,
-      (devices, device) => {
-        if (devices[device.deviceId].model.state.active()) {
-          devices[device.deviceId].sources.actions.deactivate()
+  const devices = wark.scanMerge
+    ([
+      [
+        deviceSources,
+        (devices, mediaDeviceInfo) => devices[mediaDeviceInfo.deviceId]
+          ? devices
+          : assoc(mediaDeviceInfo.deviceId, MediaDevice({ mediaDeviceInfo, sink }), devices)
+      ],
+      [
+        actions.unregisterDevice,
+        (devices, device) => {
+          if (devices[device.deviceId].model.state.active()) {
+            devices[device.deviceId].sources.actions.deactivate()
+          }
+          return dissoc(device.deviceId, devices)
         }
-        return dissoc(device.deviceId, devices)
-      }
-    ]
-  ], {})
+      ]
+    ])
+    ({})
 
-  const deviceModels = devices.map(
-    pipe(Object.values, map(prop('model')))
-  )
+  const deviceModels = wark.map
+    (pipe(Object.values, map(prop('model'))))
+    (devices)
 
   /* anytime deviceModels changes (a device was registered or unregistered),
       update which streams are being depended upon

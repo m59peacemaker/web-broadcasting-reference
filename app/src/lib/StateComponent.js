@@ -1,4 +1,4 @@
-import flyd from 'flyd'
+import * as W from 'wark'
 import noop from 'nop'
 import createSources from './createSources'
 import applyEffects from './applyEffects'
@@ -23,7 +23,7 @@ const StateComponent = ({
   assertHasRequiredArguments({ createSourcePlan, createModel, createEffectRequests })
 
   const model = {}
-  const destroy = flyd.stream()
+  const destroy = W.Stream()
 
   const {
     sources,
@@ -49,11 +49,13 @@ const StateComponent = ({
 
   const effects = applyEffects(requests, sink)
 
-  destroy.map(() => {
-    effects.cancel()
-    cancelSources()
-    destroy.end(true)
-  })
+  W.map
+    (() => {
+      effects.cancel()
+      cancelSources()
+      destroy.end()
+    })
+    (destroy)
 
   return {
     sources,
