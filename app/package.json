@@ -25,10 +25,6 @@
   "author": "Johnny Hauser <johnnyhauser@gmail.com>",
   "license": "CC0-1.0",
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-plugin-syntax-object-rest-spread": "^6.13.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
     "live-server": "^1.2.0",
     "onchange": "^3.2.1",
     "postcss-cli": "^4.1.1",
@@ -37,8 +33,6 @@
     "postcss-input-style": "^1.0.0",
     "postcss-nesting": "^4.2.1",
     "rollup": "^0.51.8",
-    "rollup-plugin-alias": "^1.4.0",
-    "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-commonjs": "^8.2.5",
     "rollup-plugin-multi-entry": "^2.0.2",
@@ -49,19 +43,12 @@
     "source-map-support": "^0.5.0",
     "tape": "^4.8.0",
     "tape-catch": "^1.0.6",
-    "tape-run": "^3.0.0",
-    "zora": "^1.0.1"
+    "tape-run": "^3.0.0"
   },
   "dependencies": {
     "addeventlistener": "^2.0.0",
     "better-emitter": "^1.0.2",
-    "deep-for-each": "^1.0.6",
     "deepmerge": "^2.0.1",
-    "flyd": "https://github.com/garkin/flyd/tarball/v0.2.4-forked",
-    "flyd-droprepeats": "^2.0.1",
-    "flyd-obj": "^0.1.0",
-    "flyd-onanimationframe": "^0.3.0",
-    "flyd-withlatestfrom": "^0.1.0",
     "gate-keeper": "^2.0.0",
     "is-nil": "^1.0.1",
     "lightness": "^1.0.0",
@@ -73,7 +60,6 @@
     "p-cancelable": "^0.3.0",
     "p-queue": "^2.2.0",
     "pify": "^3.0.0",
-    "purestate": "^1.0.0",
     "ramda": "^0.25.0",
     "ramda-adjunct": "^2.1.0",
     "svelte-extras": "^1.5.3",
@@ -81,7 +67,7 @@
     "svelte-transitions": "^1.1.1",
     "svelte-transitions-scale": "^1.0.0",
     "try_catch": "^1.0.2",
-    "wark": "file:../../wark",
+    "wark": "git+https://github.com/m59peacemaker/wark.git",
     "webrtc-adapter": "^5.0.6"
   }
 }
