@@ -75,6 +75,7 @@
     "pify": "^3.0.0",
     "purestate": "^1.0.0",
     "ramda": "^0.25.0",
+    "ramda-adjunct": "^2.1.0",
     "svelte-extras": "^1.5.3",
     "svelte-modal": "^0.4.0",
     "svelte-transitions": "^1.1.1",

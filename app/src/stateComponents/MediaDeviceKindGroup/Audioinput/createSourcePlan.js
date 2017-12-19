@@ -6,13 +6,13 @@ export default ({ model, destroy }) => {
       registerDevice: mediaDeviceInfo => {
         const isValidInfo = mediaDeviceInfo && typeof mediaDeviceInfo === 'object'
         if (!isValidInfo) {
-          return new Error('device registration requires an object of media device info')
+          throw new Error('device registration requires an object of media device info')
         }
 
         const { kind, label, deviceId } = mediaDeviceInfo
 
         if (model.devices.get()[deviceId]) {
-          return new Error(`${kind} ${label} is already registered`)
+          throw new Error(`${kind} ${label} is already registered`)
         }
 
         return mediaDeviceInfo

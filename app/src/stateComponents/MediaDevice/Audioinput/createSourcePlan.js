@@ -6,7 +6,7 @@ export default ({ model, destroy }) => ({
     /* inputdevice */
     activate: () => {
       if (!model.state.connected.get()) {
-        return new Error(`audioinput ${model.label} (${model.deviceId}) is not connected`)
+        throw new Error(`audioinput ${model.label} (${model.deviceId}) is not connected`)
       }
     },
     deactivate: null,
@@ -33,13 +33,13 @@ export default ({ model, destroy }) => ({
     setGain: gain => {
       const gainNumber = Number(gain)
       if (typeof gainNumber !== 'number') {
-        return new Error('gain should be a number')
+        throw new Error('gain should be a number')
       }
       return gainNumber
     },
     setProcessingMode: mode => {
       if (!Object.keys(AudioinputProcessingModeConfigs).includes(mode)) {
-        return new Error(`invalid processing mode "${mode}"`)
+        throw new Error(`invalid processing mode "${mode}"`)
       }
       return mode
     },
