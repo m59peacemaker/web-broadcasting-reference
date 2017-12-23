@@ -13,10 +13,10 @@ const arbitraryFlatSourcePlan = {
   barb: true
 }
 
-const arbitraryNestedSourcePlan = {
-  ...arbitraryFlatSourcePlan,
-  baztion: arbitraryFlatSourcePlan
-}
+const arbitraryNestedSourcePlan = Object.assign(
+  { baztion: arbitraryFlatSourcePlan },
+  arbitraryFlatSourcePlan
+)
 
 const flatSourcePlanWithSanitizers = {
   foo: null,
@@ -29,18 +29,20 @@ const flatSourcePlanWithSanitizers = {
   }
 }
 
-const deepSourcePlanWithSanitizers = {
-  ...flatSourcePlanWithSanitizers,
-  nest: {
-    handleTheTruth: bool => {
-      if (bool !== true) {
-        throw new Error('I can only handle the truth')
-      }
-      return bool
-    },
-    baz: null
-  }
-}
+const deepSourcePlanWithSanitizers = Object.assign(
+  {
+    nest: {
+      handleTheTruth: bool => {
+        if (bool !== true) {
+          throw new Error('I can only handle the truth')
+        }
+        return bool
+      },
+      baz: null
+    }
+  },
+  flatSourcePlanWithSanitizers
+)
 
 const assertKeysMatch = (t, objects) => objects.reduce(
   (prevObject, object) => {
@@ -105,7 +107,7 @@ test('createSources', t => {
     const { sources, sanitizedSources, sourceRejections } = createSources(sourcePlan)
 
     assertKeysMatch(t, [ sourcePlan, sources, sanitizedSources ])
-    assertKeysMatch(t, [ sourceRejections, { setText: null, nest: { handleTheTruth: null } } ])
+    assertKeysMatch(t, [ sourceRejections, { nest: { handleTheTruth: null }, setText: null } ])
     assertPropsAreStreams(t, [ sources, sanitizedSources, sourceRejections ])
 
     t.end()

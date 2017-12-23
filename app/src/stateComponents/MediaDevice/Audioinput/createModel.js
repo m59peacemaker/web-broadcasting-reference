@@ -178,11 +178,13 @@ const createModel = ({ mediaDeviceInfo, sources }) => {
     )
     (settingsThatAffectConstraints)
 
-  return {
-    ...deviceInfo,
-    state,
-    settings
-  }
+  return Object.assign(
+    deviceInfo,
+    {
+      state,
+      settings
+    }
+  )
 }
 
 export default createModel
